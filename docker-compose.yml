@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web-interno:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - API_BASE_URL=http://api_central:8000/api/v1
+      - SECRET_KEY=clave_secreta_super_segura_para_desarrollo
+      - FLASK_DEBUG=1
+    volumes:
+      - .:/app

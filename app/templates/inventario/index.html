@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>Control de Inventario</h2>
+        <p class="text-muted">Ajuste de existencias y niveles de stock.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID Inventario</th>
+                    <th>Autoparte</th>
+                    <th>Stock Mínimo</th>
+                    <th>Stock Actual</th>
+                    <th>Estado</th>
+                    <th>Actualizar Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if inventarios %}
+                {% for inv in inventarios %}
+                <tr>
+                    <td>{{ inv.get('id') }}</td>
+                    <td>{{ inv.get('autoparte', {}).get('nombre', 'Desconocido') }}</td>
+                    <td>{{ inv.get('stock_minimo', 0) }}</td>
+                    <td><strong>{{ inv.get('stock_actual', 0) }}</strong></td>
+                    <td>
+                        {% if inv.get('stock_actual', 0) <= inv.get('stock_minimo', 0) %} <span class="badge bg-danger">
+                            Bajo Stock</span>
+                            {% elif inv.get('stock_actual', 0) <= (inv.get('stock_minimo', 0) + 10) %} <span
+                                class="badge bg-warning text-dark">Alerta</span>
+                                {% else %}
+                                <span class="badge bg-success">Óptimo</span>
+                                {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('inventario.actualizar', id=inv.get('id')) }}" method="POST"
+                            class="d-flex align-items-center">
+                            <input type="number" class="form-control form-control-sm me-2" name="stock_actual"
+                                value="{{ inv.get('stock_actual', 0) }}" style="width: 80px;" min="0" required>
+                            <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay registros de inventario.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

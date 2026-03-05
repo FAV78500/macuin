@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h4 style="color: var(--macuin-dark-blue); font-weight: 700;">Gestión de Autopartes</h4>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('autopartes.nuevo') }}" class="btn btn-danger px-4"
+            style="font-weight: 600; border-radius: 6px;">
+            <i class="bi bi-plus-lg"></i> Agregar Nueva Parte
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm" style="border: 1px solid var(--macuin-border); border-radius: 8px; overflow: hidden;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="width: 100%;">
+                <thead style="background-color: var(--macuin-dark-blue);">
+                    <tr>
+                        <th
+                            style="color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            ID Parte</th>
+                        <th
+                            style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Nombre</th>
+                        <th
+                            style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Categoría ID</th>
+                        <th
+                            style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Marca ID</th>
+                        <th
+                            style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Precio</th>
+                        <th
+                            style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Estatus</th>
+                        <th
+                            style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if partes %}
+                    {% for parte in partes %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding-left: 20px; font-weight: 600; color: #555;">{{ parte.get('id') }}</td>
+                        <td>{{ parte.get('nombre') }}</td>
+                        <td>{{ parte.get('categoria_id') }}</td>
+                        <td>{{ parte.get('marca_id') }}</td>
+                        <td style="font-weight: 600;">${{ "%.2f"|format(parte.get('precio', 0)) }}</td>
+                        <td>
+                            {% if parte.get('activo') %}
+                            <span class="badge"
+                                style="background-color: #e6f4ea; color: #1e8e3e; font-weight: 600;">Disponible</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('autopartes.editar', id=parte.get('id')) }}"
+                                class="btn btn-sm btn-link text-primary p-0 me-2"><i class="bi bi-pencil-square"
+                                    style="font-size: 1.1rem;"></i></a>
+
+                            <form action="{{ url_for('autopartes.eliminar', id=parte.get('id')) }}" method="POST"
+                                class="d-inline"
+                                onsubmit="return confirm('¿Estás seguro de eliminar esta autoparte?');">
+                                <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i class="bi bi-trash"
+                                        style="font-size: 1.1rem;"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No hay autopartes registradas.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Summary Cards -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100" style="border: 1px solid var(--macuin-border);">
+            <div class="card-body p-4">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #777; margin-bottom: 5px;">Total de Partes</div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ partes|length if
+                    partes else 0 }}</div>
+            </div>
+        </div>
+    </div>
+    <!-- Dummy data for visuals matching mockup -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100" style="border: 1px solid var(--macuin-border);">
+            <div class="card-body p-4">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #777; margin-bottom: 5px;">Items en Bajo Stock
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #e37400;">1</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100" style="border: 1px solid var(--macuin-border);">
+            <div class="card-body p-4">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #777; margin-bottom: 5px;">Items Agotados</div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #d93025;">1</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
