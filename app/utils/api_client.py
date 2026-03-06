@@ -73,7 +73,7 @@ class APIClient:
     def _mock_response(self, method, endpoint, data=None):
         print(f"MOCKING API CALL: {method} {endpoint}")
         if endpoint == '/auth/login' and method == 'POST':
-            if data and data.get('password') == '1234':
+            if data and data.get('password') == '12345678':
                 return {'token': 'mocked_jwt_token', 'user': {'name': 'Admin Macuin', 'role': 'Admin', 'role_id': 1}}
             else:
                 return {'error': 'Credenciales inválidas'}, 401

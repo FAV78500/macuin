@@ -12,17 +12,41 @@
                     Administrativo
                 </p>
 
-                <form method="POST" action="{{ url_for('auth.login') }}" class="text-start">
+                <form method="POST" action="{{ url_for('auth.login') }}" class="text-start" id="login_form">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="mb-3">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show d-flex align-items-center" role="alert" style="font-size: 0.85rem;">
+                                        {% if category == 'success' %}
+                                            <i class="bi bi-check-circle-fill me-2"></i>
+                                        {% elif category == 'danger' %}
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        {% elif category == 'info' %}
+                                            <i class="bi bi-info-circle-fill me-2"></i>
+                                        {% endif %}
+                                        <div class="flex-grow-1">{{ message }}</div>
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    
                     <div class="mb-3">
                         <label for="email" class="form-label text-muted"
                             style="font-size: 0.85rem; font-weight: 600;">ID de Empleado</label>
                         <div class="input-group">
                             <span class="input-group-text bg-white" style="border-right: none; color: #aaa;"><i
                                     class="bi bi-person"></i></span>
-                            <input type="email" class="form-control" id="email" name="email" required
+                            <input type="text" class="form-control" id="email" name="email" required
                                 placeholder="Ingrese su ID o correo corporativo"
-                                style="border-left: none; font-size: 0.9rem; padding: 10px;">
+                                style="border-left: none; font-size: 0.9rem; padding: 10px;"
+                                maxlength="100">
                         </div>
+                        <small class="text-muted" style="font-size: 0.75rem; margin-top: 5px; display: block;">
+                            <i class="bi bi-info-circle"></i> Puede usar su correo corporativo o ID de empleado (4-20 caracteres)
+                        </small>
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label text-muted"
@@ -32,8 +56,12 @@
                                     class="bi bi-lock"></i></span>
                             <input type="password" class="form-control" id="password" name="password" required
                                 placeholder="Ingrese su contraseña"
-                                style="border-left: none; font-size: 0.9rem; padding: 10px;">
+                                style="border-left: none; font-size: 0.9rem; padding: 10px;"
+                                maxlength="128">
                         </div>
+                        <small class="text-muted" style="font-size: 0.75rem; margin-top: 5px; display: block;">
+                            <i class="bi bi-info-circle"></i> Para desarrollo: use contraseña <strong>12345678</strong>
+                        </small>
                     </div>
                     <button type="submit" class="btn btn-danger w-100 py-2"
                         style="font-weight: 600; border-radius: 6px;">Iniciar Sesión</button>
@@ -47,7 +75,7 @@
             </div>
         </div>
         <div class="text-center mt-4">
-            <small class="text-muted" style="font-size: 0.7rem;">Sistema de Gestión de Inventarios v1.0 - © 2026
+            <small class="text-muted" style="font-size: 0.7rem;">Sistema de Gestión de Inventarios v1.0 - 2026
                 MACUIN</small>
         </div>
     </div>
