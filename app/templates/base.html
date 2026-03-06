@@ -289,7 +289,8 @@
             </a>
             {% endif %}
 
-            <a href="#" class="nav-item-sidebar">
+            <a href="{{ url_for('usuarios.index') }}"
+                class="nav-item-sidebar {% if request.endpoint and request.endpoint.startswith('usuarios') %}active{% endif %}">
                 <i class="bi bi-people"></i> Usuarios
             </a>
         </div>
