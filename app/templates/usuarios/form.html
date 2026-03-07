@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm mx-auto"
+    style="border: 1px solid var(--macuin-border); border-radius: 8px; max-width: 600px; margin-top: 20px;">
+    <div class="card-body p-5">
+
+        <h5
+            style="color: var(--macuin-dark-blue); font-weight: 700; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+            {% if usuario.get('id') %}
+            Editar Usuario - {{ usuario.get('nombre') }}
+            {% else %}
+            Alta de Nuevo Usuario
+            {% endif %}
+        </h5>
+
+        <form method="POST"
+            action="{{ url_for('usuarios.editar', id=usuario.get('id')) if usuario.get('id') else url_for('usuarios.nuevo') }}">
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label text-muted" style="font-size: 0.85rem; font-weight: 600;">Nombre
+                    Completo</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control" id="nombre" name="nombre"
+                        value="{{ usuario.get('nombre', '') }}" required placeholder="Ej: Jesús Campos"
+                        style="font-size: 0.9rem; padding: 10px;">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label text-muted" style="font-size: 0.85rem; font-weight: 600;">Correo
+                    Electrónico (Email)</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control" id="email" name="email"
+                        value="{{ usuario.get('email', '') }}" required placeholder="campos.jesus@macuin.com"
+                        style="font-size: 0.9rem; padding: 10px;">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="rol" class="form-label text-muted" style="font-size: 0.85rem; font-weight: 600;">Rol del
+                    Sistema</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-shield-lock"></i></span>
+                    <select class="form-select" id="rol" name="rol" style="font-size: 0.9rem; padding: 10px;" required>
+                        <option value="" disabled {% if not usuario.get('rol') %}selected{% endif %}>Seleccionar rol...
+                        </option>
+                        <option value="Admin" {% if usuario.get('rol')=='Admin' %}selected{% endif %}>Administrador
+                        </option>
+                        <option value="Ventas" {% if usuario.get('rol')=='Ventas' %}selected{% endif %}>Ventas / Soporte
+                        </option>
+                        <option value="Logistica" {% if usuario.get('rol')=='Logistica' %}selected{% endif %}>Logística
+                            / Inventario</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label text-muted" style="font-size: 0.85rem; font-weight: 600;">
+                    Contraseña
+                    {% if usuario.get('id') %}
+                    <span class="fw-normal text-info" style="font-size: 0.75rem;">(Dejar en blanco si no se desea
+                        cambiar)</span>
+                    {% endif %}
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" {%
+                        if not usuario.get('id') %}required{% endif %} style="font-size: 0.9rem; padding: 10px;">
+                </div>
+            </div>
+
+            <div class="mb-4 bg-light p-3 rounded d-flex align-items-center justify-content-between">
+                <div>
+                    <strong class="d-block" style="font-size: 0.9rem; color: var(--macuin-text);">Estatus de la
+                        Cuenta</strong>
+                    <small class="text-muted" style="font-size: 0.8rem;">Permite o deniega el acceso al sistema
+                        interno.</small>
+                </div>
+                <div class="form-check form-switch" style="font-size: 1.3rem;">
+                    <input class="form-check-input" type="checkbox" id="activo" name="activo" {% if
+                        usuario.get('activo', True) %}checked{% endif %}
+                        style="background-color: #10B981; border-color: #10B981;">
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-4 pt-4 border-top d-flex justify-content-end gap-3">
+                <a href="{{ url_for('usuarios.index') }}" class="btn btn-outline-secondary px-4 py-2"
+                    style="font-weight: 600; border-radius: 6px;">Cancelar</a>
+                <button type="submit" class="btn btn-primary px-4 py-2"
+                    style="font-weight: 600; border-radius: 6px; background-color: var(--macuin-dark-blue);">
+                    <i class="bi bi-check2-circle"></i> Guardar Usuario
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

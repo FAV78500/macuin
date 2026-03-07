@@ -16,6 +16,7 @@ def create_app():
     from app.routes.inventario import inventario_bp
     from app.routes.pedidos import pedidos_bp
     from app.routes.reportes import reportes_bp
+    from app.routes.usuarios import usuarios_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -23,5 +24,6 @@ def create_app():
     app.register_blueprint(inventario_bp)
     app.register_blueprint(pedidos_bp)
     app.register_blueprint(reportes_bp)
+    app.register_blueprint(usuarios_bp)
 
     return app
