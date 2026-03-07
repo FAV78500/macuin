@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MACUIN - Internal</title>
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
@@ -40,8 +38,6 @@
                 % endif %
             }
         }
-
-        /* --- Sidebar Styles --- */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--macuin-dark-blue);
@@ -255,7 +251,6 @@
 <body>
 
     {% if session.get('token') %}
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
             <h4>MACUIN</h4>
@@ -268,7 +263,6 @@
             </a>
 
             {% if session.get('role') in ['Admin', 'Ventas'] %}
-            <!-- In mockups, 'Autopartes' list is tied under 'Inventario' occasionally, but code uses 'autopartes' root -->
             <a href="{{ url_for('autopartes.index') }}"
                 class="nav-item-sidebar {% if request.endpoint and request.endpoint.startswith('autopartes') %}active{% endif %}">
                 <i class="bi bi-box-seam"></i> Inventario
@@ -301,17 +295,11 @@
         </div>
     </div>
 
-    <!-- Main Wrapper -->
     <div class="main-wrapper">
-        <!-- Topbar -->
         <div class="topbar">
             <h5>Bienvenido, {{ session.get('user', 'Administrador') }}</h5>
-            <div class="user-profile">
-                <div class="avatar"><i class="bi bi-person-fill"></i></div>
-            </div>
+           
         </div>
-
-        <!-- Content Body -->
         <div class="content-body">
             {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -329,7 +317,6 @@
         </div>
     </div>
     {% else %}
-    <!-- Layout for Non-logged in (Login page) -->
     <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
         <div class="w-100">
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -350,8 +337,6 @@
         </div>
     </div>
     {% endif %}
-
-    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     {% block scripts %}{% endblock %}
 </body>

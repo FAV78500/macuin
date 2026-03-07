@@ -25,7 +25,7 @@
         }
     </script>
 </head>
-<body class="bg-macuin-bg text-gray-800 font-sans antialiased">
+<body class="bg-macuin-bg text-gray-800 font-sans antialiased relative">
 
     <div class="min-h-screen flex flex-col md:flex-row">
 
@@ -52,8 +52,7 @@
 
                 <h2 class="text-2xl font-semibold text-macuin-blue mb-8 text-center md:text-left">Bienvenido de nuevo</h2>
 
-                <form action="/login" method="POST" class="space-y-5">
-                    @csrf 
+                <div class="space-y-5">
                     
                     <div>
                         <label for="email" class="block text-sm text-gray-600 mb-1">Correo Electrónico</label>
@@ -80,13 +79,13 @@
                     </div>
 
                     <div class="flex justify-end">
-                        <a href="#" class="text-xs text-macuin-blue hover:underline">¿Olvidaste tu contraseña?</a>
+                        <a href="#" id="openForgotModalBtn" class="text-xs text-macuin-blue hover:underline">¿Olvidaste tu contraseña?</a>
                     </div>
 
-                    <button type="submit" class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2.5 rounded-md transition duration-200">
+                    <a href="/" class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2.5 rounded-md transition duration-200 block text-center">
                         Acceder
-                    </button>
-                </form>
+                    </a>
+                </div>
 
                 <div class="mt-8 mb-6 relative flex items-center justify-center">
                     <div class="border-t border-gray-200 w-full absolute"></div>
@@ -100,5 +99,92 @@
         </div>
     </div>
 
+    <div id="forgotPasswordModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden transition-opacity">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative mx-4">
+            
+            <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div id="modalStep1" class="block">
+                <div class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-macuin-blue mb-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-macuin-blue mb-2">Recuperar Contraseña</h3>
+                <p class="text-sm text-gray-600 mb-6">Ingresa el correo electrónico asociado a tu cuenta de taller y te enviaremos las instrucciones para restablecer tu contraseña.</p>
+                
+                <div class="mb-6">
+                    <label for="recovery_email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+                    <input type="email" id="recovery_email" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-macuin-blue text-sm transition" placeholder="ejemplo@taller.com">
+                </div>
+
+                <div class="flex gap-3 justify-end">
+                    <button class="close-modal-btn px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition">
+                        Cancelar
+                    </button>
+                    <button id="sendRecoveryBtn" class="px-4 py-2 text-sm font-medium text-white bg-macuin-blue hover:bg-blue-900 rounded-md transition">
+                        Enviar Instrucciones
+                    </button>
+                </div>
+            </div>
+
+            <div id="modalStep2" class="hidden text-center py-4">
+                <div class="flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-500 mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">¡Revisa tu bandeja!</h3>
+                <p class="text-sm text-gray-600 mb-6">Si el correo ingresado coincide con nuestros registros, recibirás un enlace seguro para crear una nueva contraseña en los próximos minutos.</p>
+                
+                <button class="close-modal-btn w-full px-4 py-2 text-sm font-medium text-white bg-macuin-blue hover:bg-blue-900 rounded-md transition">
+                    Entendido
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('forgotPasswordModal');
+            const openBtn = document.getElementById('openForgotModalBtn');
+            const closeBtns = document.querySelectorAll('.close-modal-btn');
+            const step1 = document.getElementById('modalStep1');
+            const step2 = document.getElementById('modalStep2');
+            const sendBtn = document.getElementById('sendRecoveryBtn');
+            const emailInput = document.getElementById('recovery_email');
+            
+            openBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.classList.remove('hidden');
+            });
+            
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                setTimeout(() => {
+                    step1.classList.remove('hidden');
+                    step2.classList.add('hidden');
+                    emailInput.value = ''; 
+                }, 300);
+            };
+
+            closeBtns.forEach(btn => btn.addEventListener('click', closeModal));
+            
+            sendBtn.addEventListener('click', () => {
+                if(emailInput.value.trim() === '') {
+                    emailInput.classList.add('border-red-500', 'focus:ring-red-500');
+                    return;
+                }
+                emailInput.classList.remove('border-red-500', 'focus:ring-red-500');
+                step1.classList.add('hidden');
+                step2.classList.remove('hidden');
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if(e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

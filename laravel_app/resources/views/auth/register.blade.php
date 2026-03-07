@@ -114,9 +114,9 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2.5 rounded-md transition duration-200 mt-2">
+                    <a href="/login" type="submit" class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2.5 rounded-md transition duration-200 block text-center">
                         Crear Cuenta
-                    </button>
+                    </a>
                 </form>
 
                 <div class="mt-6 text-center">

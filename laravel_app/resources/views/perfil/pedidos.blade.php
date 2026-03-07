@@ -15,7 +15,7 @@
             </div>
 
             <nav class="bg-white rounded-lg shadow-sm border border-gray-200 p-2 space-y-1">
-                <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-md transition font-medium">
+                <a href="/perfil" class="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-md transition font-medium">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     Mi Perfil
                 </a>
@@ -78,10 +78,10 @@
                         <span class="bg-[#3B82F6] text-white px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide shadow-sm">
                             Enviado / En Camino
                         </span>
-                        <button class="bg-macuin-red hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-200 shadow-sm flex items-center gap-2">
+                        <a href="http://fedex.com/es-mx/tracking.html" target="_blank" class="bg-macuin-red hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition duration-200 shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             Rastrear Paquete
-                        </button>
+                        </a>
                     </div>
                 </div>
 

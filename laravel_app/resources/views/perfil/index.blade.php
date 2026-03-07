@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="flex flex-col lg:flex-row gap-8">
+    <div class="flex flex-col lg:flex-row gap-8 relative overflow-hidden">
         
         <aside class="w-full lg:w-64 flex-shrink-0 space-y-6">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center">
@@ -46,7 +46,7 @@
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-4 border-b border-gray-100">Información del Taller / Negocio</h3>
                     
-                    <form action="#" method="POST" class="space-y-4">
+                    <form id="profileForm" action="#" method="POST" class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="nombre_taller" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Taller / Empresa</label>
@@ -78,7 +78,7 @@
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4 pb-4 border-b border-gray-100">Seguridad</h3>
                     
-                    <form action="#" method="POST" class="space-y-4 max-w-lg">
+                    <form id="passwordForm" action="#" method="POST" class="space-y-4 max-w-lg">
                         <div>
                             <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña Actual</label>
                             <input type="password" id="current_password" name="current_password" placeholder="••••••••" class="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:ring-2 focus:ring-macuin-blue focus:border-macuin-blue outline-none transition">
@@ -93,7 +93,7 @@
                         </div>
                         
                         <div class="pt-4">
-                            <button type="submit" class="bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-semibold py-2 px-6 rounded-md transition shadow-sm">
+                            <button type="submit" class="bg-macuin-blue hover:bg-blue-900 text-white font-semibold py-2 px-6 rounded-md transition shadow-sm">
                                 Actualizar Contraseña
                             </button>
                         </div>
@@ -104,5 +104,39 @@
         </section>
 
     </div>
+
+    <div id="toastNotification" class="fixed bottom-4 right-4 transform translate-y-24 opacity-0 transition-all duration-300 ease-in-out z-50 flex items-center gap-3 bg-green-500 text-white px-5 py-3 rounded-lg shadow-lg pointer-events-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="toastMessage" class="font-medium text-sm">Cambios guardados con éxito</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileForm = document.getElementById('profileForm');
+            const passwordForm = document.getElementById('passwordForm');
+            const toast = document.getElementById('toastNotification');
+            const toastMessage = document.getElementById('toastMessage');
+            let toastTimeout;
+            const showToast = (message) => {
+                toastMessage.textContent = message;
+                toast.classList.remove('translate-y-24', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-24', 'opacity-0');
+                }, 3500);
+            };
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault(); 
+                showToast('¡Información del taller actualizada correctamente!');
+            });
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault(); 
+                passwordForm.reset(); 
+                showToast('¡Contraseña actualizada correctamente!');
+            });
+        });
+    </script>
 
 @endsection

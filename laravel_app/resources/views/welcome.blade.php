@@ -19,7 +19,7 @@
                 <a href="#productos" class="bg-macuin-red hover:bg-red-700 text-white font-bold py-3 px-8 rounded-md transition text-center shadow-md">
                     Ver Catálogo
                 </a>
-                <a href="#" class="bg-white hover:bg-gray-100 text-macuin-blue font-bold py-3 px-8 rounded-md transition text-center shadow-md">
+                <a href="https://web.whatsapp.com/" target="_blank" class="bg-white hover:bg-gray-100 text-macuin-blue font-bold py-3 px-8 rounded-md transition text-center shadow-md">
                     Cotizar por WhatsApp
                 </a>
             </div>
@@ -53,7 +53,7 @@
 
             <a href="#" class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md hover:border-macuin-blue transition group flex flex-col items-center text-center">
                 <div class="w-16 h-16 bg-blue-50 text-macuin-blue rounded-full flex items-center justify-center mb-4 group-hover:bg-macuin-blue group-hover:text-white transition">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l-5 5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                 </div>
                 <h3 class="font-semibold text-gray-900">Suspensión</h3>
             </a>

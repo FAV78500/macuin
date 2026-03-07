@@ -34,8 +34,7 @@
                     <a href="/" class="text-2xl font-bold tracking-wider">MACUIN</a>
                     <div class="hidden md:flex space-x-6 text-sm">
                         <a href="/catalogo" class="hover:text-gray-300 transition">Catálogo</a>
-                        <a href="#" class="hover:text-gray-300 transition">Ofertas</a>
-                        <a href="#" class="hover:text-gray-300 transition">Talleres</a>
+                        <a href="/catalogo" class="hover:text-gray-300 transition">Ofertas</a>
                     </div>
                 </div>
                 
