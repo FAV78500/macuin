@@ -1,10 +1,4 @@
 version: '3.8'
-
-# ─────────────────────────────────────────────────────────────────────────────
-# REDES
-#   red_interna  → db + api           (los frontends NUNCA entran aquí)
-#   red_frontends → api + flask + laravel
-# ─────────────────────────────────────────────────────────────────────────────
 networks:
   red_interna:
     driver: bridge
@@ -16,7 +10,6 @@ volumes:
 
 services:
 
-  # ── BASE DE DATOS ──────────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
     networks:
@@ -33,17 +26,15 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-
-  # ── API CENTRAL (FastAPI) ──────────────────────────────────────────────────
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
     networks:
-      - red_interna     # habla con la BD
-      - red_frontends   # recibe peticiones de los frontends
+      - red_interna     
+      - red_frontends   
     ports:
-      - "8000:8000"     # acceso desde el host (útil en desarrollo)
+      - "8000:8000"     
     environment:
       DATABASE_URL:                postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       SECRET_KEY:                  ${JWT_SECRET_KEY}
@@ -53,13 +44,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # ── CLIENTE INTERNO (Flask) ────────────────────────────────────────────────
   web-interno:
     build:
       context: ./frontend-flask
       dockerfile: Dockerfile
     networks:
-      - red_frontends   # solo habla con la API, nunca con la BD
+      - red_frontends   
     ports:
       - "5000:5000"
     environment:
@@ -70,13 +60,12 @@ services:
       - api
     restart: unless-stopped
 
-  # ── CLIENTE EXTERNO (Laravel) ──────────────────────────────────────────────
   web-externo:
     build:
       context: ./frontend-laravel
       dockerfile: Dockerfile
     networks:
-      - red_frontends   # solo habla con la API, nunca con la BD
+      - red_frontends   
     ports:
       - "8080:8000"
     environment:
