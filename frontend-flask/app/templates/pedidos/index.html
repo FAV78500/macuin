@@ -43,20 +43,21 @@
                         <td>{{ pedido.get('fecha_pedido') }}</td>
                         <td style="font-weight: 600;">${{ "%.2f"|format(pedido.get('subtotal', 0)) }}</td>
                         <td>
-                            {% set estado_id = pedido.get('estado', {}).get('id', 1) %}
-                            {% if estado_id == 1 %}
+                            {% set estado = pedido.get('estado', 'RECIBIDO') %}
+                            {% if estado == 'RECIBIDO' %}
                             <span class="badge"
                                 style="background-color: #fef0db; color: #e37400; font-weight: 600;">Pendiente de
                                 Surtido</span>
-                            {% elif estado_id == 2 %}
+                            {% elif estado == 'SURTIDO' %}
                             <span class="badge"
                                 style="background-color: #ffeadb; color: #ff7b00; font-weight: 600;">Surtido</span>
-                            {% elif estado_id == 3 %}
+                            {% elif estado == 'ENVIADO' %}
                             <span class="badge"
                                 style="background-color: #e6f4ea; color: #1e8e3e; font-weight: 600;">Enviado</span>
+                            {% elif estado == 'CANCELADO' %}
+                            <span class="badge bg-dark">Cancelado</span>
                             {% else %}
-                            <span class="badge bg-dark">{{ pedido.get('estado', {}).get('nombre', 'Desconocido')
-                                }}</span>
+                            <span class="badge bg-secondary">{{ estado }}</span>
                             {% endif %}
                         </td>
                         <td>
@@ -64,9 +65,9 @@
                                 class="d-flex align-items-center">
                                 <select class="form-select form-select-sm me-2" name="estado_id" required
                                     style="width: auto; font-size: 0.8rem; border-radius: 6px; padding: 4px 10px;">
-                                    <option value="1" {% if estado_id==1 %}selected{% endif %}>Recibido</option>
-                                    <option value="2" {% if estado_id==2 %}selected{% endif %}>Surtido</option>
-                                    <option value="3" {% if estado_id==3 %}selected{% endif %}>Enviado</option>
+                                    <option value="1" {% if estado=='RECIBIDO' %}selected{% endif %}>Recibido</option>
+                                    <option value="2" {% if estado=='SURTIDO' %}selected{% endif %}>Surtido</option>
+                                    <option value="3" {% if estado=='ENVIADO' %}selected{% endif %}>Enviado</option>
                                 </select>
                                 <button type="submit" class="btn btn-sm btn-outline-secondary px-2"
                                     style="border-radius: 6px; font-size: 0.8rem;">
@@ -116,10 +117,10 @@
 
     {% if pedidos %}
     {% for p in pedidos %}
-    {% set eid = p.get('estado', {}).get('id', 1) %}
-    {% if eid == 1 %}{% set count_recibido = count_recibido + 1 %}{% endif %}
-    {% if eid == 2 %}{% set count_surtido = count_surtido + 1 %}{% endif %}
-    {% if eid == 3 %}{% set count_enviado = count_enviado + 1 %}{% endif %}
+    {% set eid = p.get('estado', 'RECIBIDO') %}
+    {% if eid == 'RECIBIDO' %}{% set count_recibido = count_recibido + 1 %}{% endif %}
+    {% if eid == 'SURTIDO' %}{% set count_surtido = count_surtido + 1 %}{% endif %}
+    {% if eid == 'ENVIADO' %}{% set count_enviado = count_enviado + 1 %}{% endif %}
     {% endfor %}
     {% endif %}
 

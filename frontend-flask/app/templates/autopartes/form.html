@@ -25,50 +25,34 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="sku" class="form-label text-muted"
-                            style="font-size: 0.85rem; font-weight: 600;">Número de Parte (SKU)</label>
-                        <input type="text" class="form-control" id="sku" name="sku" placeholder="NGK-IR-7450"
+                        <label for="numero_parte" class="form-label text-muted"
+                            style="font-size: 0.85rem; font-weight: 600;">Número de Parte</label>
+                        <input type="text" class="form-control" id="numero_parte" name="numero_parte"
+                            value="{{ parte.get('numero_parte', '') }}" placeholder="NGK-IR-7450"
                             style="font-size: 0.9rem; padding: 10px;">
                     </div>
 
                     <div class="mb-3">
-                        <label for="marca_id" class="form-label text-muted"
+                        <label for="marca" class="form-label text-muted"
                             style="font-size: 0.85rem; font-weight: 600;">Marca</label>
-                        <select class="form-select" id="marca_id" name="marca_id"
+                        <input type="text" class="form-control" id="marca" name="marca"
+                            value="{{ parte.get('marca', '') }}" placeholder="NGK, Bosch, Brembo..."
                             style="font-size: 0.9rem; padding: 10px;">
-                            <option value="1" {% if parte.get('marca_id')==1 %}selected{% endif %}>Seleccionar marca...
-                            </option>
-                            <option value="5" {% if parte.get('marca_id')==5 %}selected{% endif %}>Bosch</option>
-                            <option value="8" {% if parte.get('marca_id')==8 %}selected{% endif %}>Brembo</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-muted" style="font-size: 0.85rem; font-weight: 600;">Modelo
-                            Compatible</label>
-                        <select class="form-select" style="font-size: 0.9rem; padding: 10px;">
-                            <option>Seleccionar modelo...</option>
-                        </select>
                     </div>
 
                     <div class="mb-3">
                         <label for="categoria_id" class="form-label text-muted"
                             style="font-size: 0.85rem; font-weight: 600;">Categoría</label>
                         <select class="form-select" id="categoria_id" name="categoria_id"
-                            style="font-size: 0.9rem; padding: 10px;">
-                            <option value="1" {% if parte.get('categoria_id')==1 %}selected{% endif %}>Seleccionar
-                                categoría...</option>
-                            <option value="3" {% if parte.get('categoria_id')==3 %}selected{% endif %}>Frenos</option>
-                            <option value="2" {% if parte.get('categoria_id')==2 %}selected{% endif %}>Suspensión
+                            style="font-size: 0.9rem; padding: 10px;" required>
+                            <option value="" disabled {% if not parte.get('categoria_id') %}selected{% endif %}>
+                                Seleccionar categoría...</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.get('id') }}"
+                                {% if parte.get('categoria_id') == cat.get('id') or parte.get('categoria', {}).get('id') == cat.get('id') %}selected{% endif %}>
+                                {{ cat.get('nombre') }}
                             </option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label text-muted"
-                            style="font-size: 0.85rem; font-weight: 600;">Sub-Categoría</label>
-                        <select class="form-select" style="font-size: 0.9rem; padding: 10px;">
-                            <option>Seleccionar sub-categoría...</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>

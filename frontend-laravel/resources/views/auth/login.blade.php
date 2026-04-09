@@ -52,8 +52,15 @@
 
                 <h2 class="text-2xl font-semibold text-macuin-blue mb-8 text-center md:text-left">Bienvenido de nuevo</h2>
 
-                <div class="space-y-5">
-                    
+                <form action="/login" method="POST" class="space-y-5">
+                    @csrf
+
+                    @if($errors->has('email'))
+                    <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md px-3 py-2">
+                        {{ $errors->first('email') }}
+                    </div>
+                    @endif
+
                     <div>
                         <label for="email" class="block text-sm text-gray-600 mb-1">Correo Electrónico</label>
                         <div class="relative">
@@ -62,7 +69,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </div>
-                            <input type="email" id="email" name="email" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-macuin-blue focus:border-macuin-blue text-sm transition" placeholder="tu@email.com">
+                            <input type="email" id="email" name="email" value="{{ old('email') }}" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-macuin-blue focus:border-macuin-blue text-sm transition" placeholder="tu@email.com" required>
                         </div>
                     </div>
 
@@ -74,18 +81,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                 </svg>
                             </div>
-                            <input type="password" id="password" name="password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-macuin-blue focus:border-macuin-blue text-sm transition" placeholder="••••••••">
+                            <input type="password" id="password" name="password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-macuin-blue focus:border-macuin-blue text-sm transition" placeholder="••••••••" required>
                         </div>
                     </div>
 
-                    <div class="flex justify-end">
-                        <a href="#" id="openForgotModalBtn" class="text-xs text-macuin-blue hover:underline">¿Olvidaste tu contraseña?</a>
-                    </div>
-
-                    <a href="/" class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2.5 rounded-md transition duration-200 block text-center">
+                    <button type="submit" class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2.5 rounded-md transition duration-200">
                         Acceder
-                    </a>
-                </div>
+                    </button>
+                </form>
 
                 <div class="mt-8 mb-6 relative flex items-center justify-center">
                     <div class="border-t border-gray-200 w-full absolute"></div>

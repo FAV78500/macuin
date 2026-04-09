@@ -21,22 +21,18 @@ _admin   = Depends(require_roles(Rol.admin))
 # ── Categorías ───────────────────────────────────────────────────────────────
 
 @router.get('/categorias', response_model=List[CategoriaOut])
-def listar_categorias(
-    db: Session = Depends(get_db),
-    _: Usuario = Depends(get_current_user),
-):
+def listar_categorias(db: Session = Depends(get_db)):
     return db.query(Categoria).order_by(Categoria.nombre).all()
 
 
 # ── Catálogo ─────────────────────────────────────────────────────────────────
 
-@router.get('/', response_model=List[AutoparteOut])
+@router.get('', response_model=List[AutoparteOut])
 def listar_autopartes(
     categoria_id: Optional[int]  = Query(None),
     activo:       Optional[bool] = Query(True),
     buscar:       Optional[str]  = Query(None),
     db:           Session        = Depends(get_db),
-    _:            Usuario        = Depends(get_current_user),
 ):
     q = db.query(Autoparte)
     if activo is not None:
@@ -52,7 +48,6 @@ def listar_autopartes(
 def obtener_autoparte(
     id: int,
     db: Session = Depends(get_db),
-    _:  Usuario = Depends(get_current_user),
 ):
     autoparte = db.query(Autoparte).filter(Autoparte.id == id).first()
     if not autoparte:
@@ -62,7 +57,7 @@ def obtener_autoparte(
 
 # ── CRUD interno ─────────────────────────────────────────────────────────────
 
-@router.post('/', response_model=AutoparteOut, status_code=status.HTTP_201_CREATED)
+@router.post('', response_model=AutoparteOut, status_code=status.HTTP_201_CREATED)
 def crear_autoparte(
     datos: AutoparteCreate,
     db:    Session = Depends(get_db),

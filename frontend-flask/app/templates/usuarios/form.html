@@ -48,12 +48,14 @@
                     <select class="form-select" id="rol" name="rol" style="font-size: 0.9rem; padding: 10px;" required>
                         <option value="" disabled {% if not usuario.get('rol') %}selected{% endif %}>Seleccionar rol...
                         </option>
-                        <option value="Admin" {% if usuario.get('rol')=='Admin' %}selected{% endif %}>Administrador
+                        <option value="admin" {% if usuario.get('rol')=='admin' %}selected{% endif %}>Administrador
                         </option>
-                        <option value="Ventas" {% if usuario.get('rol')=='Ventas' %}selected{% endif %}>Ventas / Soporte
+                        <option value="ventas" {% if usuario.get('rol')=='ventas' %}selected{% endif %}>Ventas / Soporte
                         </option>
-                        <option value="Logistica" {% if usuario.get('rol')=='Logistica' %}selected{% endif %}>Logística
-                            / Inventario</option>
+                        <option value="almacen" {% if usuario.get('rol')=='almacen' %}selected{% endif %}>Almacén
+                        </option>
+                        <option value="logistica" {% if usuario.get('rol')=='logistica' %}selected{% endif %}>Logística
+                        </option>
                     </select>
                 </div>
             </div>

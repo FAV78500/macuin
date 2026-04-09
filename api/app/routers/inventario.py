@@ -13,7 +13,7 @@ _lectura    = Depends(require_roles(Rol.admin, Rol.ventas, Rol.almacen, Rol.logi
 _escritura  = Depends(require_roles(Rol.admin, Rol.almacen))
 
 
-@router.get('/', response_model=List[InventarioOut])
+@router.get('', response_model=List[InventarioOut])
 def listar_inventario(
     db: Session = Depends(get_db),
     _:  Usuario = _lectura,

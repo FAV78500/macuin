@@ -9,14 +9,10 @@
         <aside class="w-full lg:w-64 flex-shrink-0 space-y-6">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center">
                 <div class="relative">
-                    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-100 mb-4 shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=200&auto=format&fit=crop" alt="Perfil" class="w-full h-full object-cover">
+                    <div class="w-24 h-24 rounded-full bg-macuin-blue flex items-center justify-center mb-4 text-white text-3xl font-bold">
+                        {{ strtoupper(substr(session('user_name', 'U'), 0, 1)) }}
                     </div>
-                    <button class="absolute bottom-4 right-0 bg-macuin-blue text-white p-1.5 rounded-full hover:bg-blue-900 transition shadow-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    </button>
-                </div>
-                <h2 class="font-bold text-gray-900 text-lg">Taller Mecánico Velocidad</h2>
+                <h2 class="font-bold text-gray-900 text-lg">{{ session('user_name') }}</h2>
             </div>
 
             <nav class="bg-white rounded-lg shadow-sm border border-gray-200 p-2 space-y-1">
@@ -31,10 +27,13 @@
 
                 <div class="pt-4 mt-2 border-t border-gray-100"></div>
 
-                <a href="/login" class="flex items-center gap-3 px-4 py-3 text-macuin-red hover:bg-red-50 rounded-md transition font-medium">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Cerrar Sesión
-                </a>
+                <form action="/logout" method="POST">
+                    @csrf
+                    <button type="submit" class="flex items-center gap-3 px-4 py-3 text-macuin-red hover:bg-red-50 rounded-md transition font-medium w-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        Cerrar Sesión
+                    </button>
+                </form>
             </nav>
         </aside>
 

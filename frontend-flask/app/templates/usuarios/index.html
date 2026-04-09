@@ -56,12 +56,16 @@
                         <td>{{ usuario.get('email') }}</td>
                         <td>
                             {% set rol = usuario.get('rol', '') %}
-                            {% if rol == 'Admin' %}
+                            {% if rol == 'admin' %}
                             <span class="badge bg-danger">Admin</span>
-                            {% elif rol == 'Ventas' %}
+                            {% elif rol == 'ventas' %}
                             <span class="badge bg-primary">Ventas</span>
-                            {% elif rol == 'Logistica' %}
+                            {% elif rol == 'logistica' %}
                             <span class="badge bg-warning">Logística</span>
+                            {% elif rol == 'almacen' %}
+                            <span class="badge bg-info">Almacén</span>
+                            {% elif rol == 'externo' %}
+                            <span class="badge bg-secondary">Externo</span>
                             {% else %}
                             <span class="badge bg-secondary">{{ rol }}</span>
                             {% endif %}
@@ -122,7 +126,7 @@
                     {% set admin_count = namespace(value=0) %}
                     {% if usuarios %}
                     {% for u in usuarios %}
-                    {% if u.get('rol') == 'Admin' %}{% set admin_count.value = admin_count.value + 1 %}{% endif %}
+                    {% if u.get('rol') == 'admin' %}{% set admin_count.value = admin_count.value + 1 %}{% endif %}
                     {% endfor %}
                     {% endif %}
                     {{ admin_count.value }}

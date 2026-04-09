@@ -6,7 +6,7 @@ reportes_bp = Blueprint('reportes', __name__, url_prefix='/reportes')
 
 @reportes_bp.route('/')
 @login_required
-@role_required('Admin', 'Ventas')
+@role_required('admin', 'ventas')
 def index():
     ventas = api_client.get('/reportes/ventas')
     return render_template('reportes/index.html', ventas=ventas)

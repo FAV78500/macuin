@@ -21,7 +21,8 @@ def login(datos: LoginRequest, db: Session = Depends(get_db)):
             detail='Credenciales inválidas',
         )
 
-    token = crear_token({'sub': usuario.id, 'rol': usuario.rol.value})
+    # sub debe ser string según el estándar JWT (python-jose lo valida)
+    token = crear_token({'sub': str(usuario.id), 'rol': usuario.rol.value})
 
     return TokenResponse(
         token=token,

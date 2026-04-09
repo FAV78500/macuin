@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
+import bcrypt as _bcrypt
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from app import config
@@ -14,13 +15,11 @@ from app.models.usuario import Usuario, Rol
 
 # ── Hashing de contraseñas ──────────────────────────────────────────────────
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    return _bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 # ── JWT ─────────────────────────────────────────────────────────────────────
@@ -61,9 +60,10 @@ def get_current_user(
             config.SECRET_KEY,
             algorithms=[config.ALGORITHM],
         )
-        user_id: int = payload.get('sub')
-        if user_id is None:
+        sub = payload.get('sub')
+        if sub is None:
             raise exc
+        user_id: int = int(sub)
     except JWTError:
         raise exc
 
