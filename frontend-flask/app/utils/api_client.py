@@ -73,8 +73,21 @@ class APIClient:
     def _mock_response(self, method, endpoint, data=None):
         print(f"MOCKING API CALL: {method} {endpoint}")
         if endpoint == '/auth/login' and method == 'POST':
-            if data and data.get('password') == '1234':
-                return {'token': 'mocked_jwt_token', 'user': {'name': 'Admin Macuin', 'role': 'Admin', 'role_id': 1}}
+            email = data.get('email', '') if data else ''
+            password = data.get('password', '') if data else ''
+            
+            # Mock login para usuarios de prueba
+            if email == 'admin@macuin.com' and password == 'admin2026':
+                return {'token': 'mocked_jwt_token', 'user': {'name': 'Admin Macuin', 'role': 'admin', 'role_id': 1}}
+            elif email == 'ventas@macuin.com' and password == 'ventas2026':
+                return {'token': 'mocked_jwt_token', 'user': {'name': 'Ventas Macuin', 'role': 'ventas', 'role_id': 2}}
+            elif email == 'almacen@macuin.com' and password == 'almacen2026':
+                return {'token': 'mocked_jwt_token', 'user': {'name': 'Almacén Macuin', 'role': 'almacen', 'role_id': 3}}
+            elif email in ['piston@taller.com', 'rueda@refac.com', 'radec@taller.com'] and password == '1234':
+                return {'token': 'mocked_jwt_token', 'user': {'name': 'Usuario Externo', 'role': 'externo', 'role_id': 4}}
+            elif password == '1234':
+                # Fallback para pruebas rápidas
+                return {'token': 'mocked_jwt_token', 'user': {'name': 'Admin Macuin', 'role': 'admin', 'role_id': 1}}
             else:
                 return {'error': 'Credenciales inválidas'}, 401
                 

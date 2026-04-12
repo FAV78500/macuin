@@ -12,7 +12,7 @@ _ESTADO_MAP = {
 
 @pedidos_bp.route('/')
 @login_required
-@role_required('admin', 'ventas', 'logistica')
+@role_required('admin', 'ventas', 'almacen', 'externo')
 def index():
     pedidos = api_client.get('/pedidos')
     if isinstance(pedidos, dict) and 'error' in pedidos:
@@ -22,7 +22,7 @@ def index():
 
 @pedidos_bp.route('/estatus/<int:id>', methods=['POST'])
 @login_required
-@role_required('admin', 'logistica')
+@role_required('admin', 'almacen')
 def estatus(id):
     nuevo_estado = request.form.get('estado_id')
     if nuevo_estado and nuevo_estado in _ESTADO_MAP:

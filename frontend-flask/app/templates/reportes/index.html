@@ -32,6 +32,25 @@
         height: 32px;
         border-radius: 6px;
     }
+
+    .report-card {
+        border: 1px solid var(--macuin-border);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .report-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .download-btn {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
 </style>
 {% endblock %}
 
@@ -135,6 +154,119 @@
                     <i class="bi bi-circle-fill" style="color: #F59E0B; font-size: 0.5rem; vertical-align: middle;"></i>
                     Suspensión
                 </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reportes Descargables -->
+<div class="row mt-4">
+    <div class="col-12">
+        <h6 style="color: var(--macuin-dark-blue); font-weight: 700; margin-bottom: 20px;">Reportes Disponibles</h6>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Reporte 1: Ventas por Periodo -->
+    <div class="col-md-3 mb-3">
+        <div class="card report-card h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-file-earmark-bar-graph" style="color: var(--macuin-dark-blue); font-size: 1.5rem; margin-right: 10px;"></i>
+                    <div>
+                        <h6 style="font-weight: 600; margin-bottom: 0;">Ventas por Periodo</h6>
+                        <small style="color: #777;">Análisis mensual de ventas</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('reportes.descargar_ventas_periodo', formato='pdf') }}" class="btn btn-sm btn-outline-primary download-btn me-1">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_ventas_periodo', formato='xlsx') }}" class="btn btn-sm btn-outline-success download-btn me-1">
+                        <i class="bi bi-file-earmark-excel"></i> XLSX
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_ventas_periodo', formato='docx') }}" class="btn btn-sm btn-outline-secondary download-btn">
+                        <i class="bi bi-file-earmark-word"></i> DOCX
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reporte 2: Productos Más Vendidos -->
+    <div class="col-md-3 mb-3">
+        <div class="card report-card h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-trophy" style="color: #F59E0B; font-size: 1.5rem; margin-right: 10px;"></i>
+                    <div>
+                        <h6 style="font-weight: 600; margin-bottom: 0;">Top Productos</h6>
+                        <small style="color: #777;">Productos más vendidos</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('reportes.descargar_top_productos', formato='pdf') }}" class="btn btn-sm btn-outline-primary download-btn me-1">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_top_productos', formato='xlsx') }}" class="btn btn-sm btn-outline-success download-btn me-1">
+                        <i class="bi bi-file-earmark-excel"></i> XLSX
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_top_productos', formato='docx') }}" class="btn btn-sm btn-outline-secondary download-btn">
+                        <i class="bi bi-file-earmark-word"></i> DOCX
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reporte 3: Inventario Actual -->
+    <div class="col-md-3 mb-3">
+        <div class="card report-card h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-box-seam" style="color: #10B981; font-size: 1.5rem; margin-right: 10px;"></i>
+                    <div>
+                        <h6 style="font-weight: 600; margin-bottom: 0;">Inventario</h6>
+                        <small style="color: #777;">Estado actual de stock</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('reportes.descargar_inventario', formato='pdf') }}" class="btn btn-sm btn-outline-primary download-btn me-1">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_inventario', formato='xlsx') }}" class="btn btn-sm btn-outline-success download-btn me-1">
+                        <i class="bi bi-file-earmark-excel"></i> XLSX
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_inventario', formato='docx') }}" class="btn btn-sm btn-outline-secondary download-btn">
+                        <i class="bi bi-file-earmark-word"></i> DOCX
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reporte 4: Pedidos por Estatus -->
+    <div class="col-md-3 mb-3">
+        <div class="card report-card h-100">
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-receipt" style="color: #3b82f6; font-size: 1.5rem; margin-right: 10px;"></i>
+                    <div>
+                        <h6 style="font-weight: 600; margin-bottom: 0;">Pedidos</h6>
+                        <small style="color: #777;">Por estatus y fecha</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ url_for('reportes.descargar_pedidos_estatus', formato='pdf') }}" class="btn btn-sm btn-outline-primary download-btn me-1">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_pedidos_estatus', formato='xlsx') }}" class="btn btn-sm btn-outline-success download-btn me-1">
+                        <i class="bi bi-file-earmark-excel"></i> XLSX
+                    </a>
+                    <a href="{{ url_for('reportes.descargar_pedidos_estatus', formato='docx') }}" class="btn btn-sm btn-outline-secondary download-btn">
+                        <i class="bi bi-file-earmark-word"></i> DOCX
+                    </a>
+                </div>
             </div>
         </div>
     </div>

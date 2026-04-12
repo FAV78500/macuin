@@ -1,60 +1,71 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row mb-4">
+<div class="row align-items-center mb-4">
     <div class="col">
-        <h2>Control de Inventario</h2>
-        <p class="text-muted">Ajuste de existencias y niveles de stock.</p>
+        <h4 style="color: var(--macuin-dark-blue); font-weight: 700;">Gestión de Inventario</h4>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('autopartes.nuevo') }}" class="btn btn-danger px-4"
+            style="font-weight: 600; border-radius: 6px;">
+            <i class="bi bi-plus-lg"></i> Agregar Autoparte
+        </a>
     </div>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>ID Inventario</th>
-                    <th>Autoparte</th>
-                    <th>Stock Mínimo</th>
-                    <th>Stock Actual</th>
-                    <th>Estado</th>
-                    <th>Actualizar Stock</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if inventarios %}
-                {% for inv in inventarios %}
-                <tr>
-                    <td>{{ inv.get('id') }}</td>
-                    <td>{{ inv.get('autoparte', {}).get('nombre', 'Desconocido') }}</td>
-                    <td>{{ inv.get('stock_minimo', 0) }}</td>
-                    <td><strong>{{ inv.get('stock_actual', 0) }}</strong></td>
-                    <td>
-                        {% if inv.get('stock_actual', 0) <= inv.get('stock_minimo', 0) %} <span class="badge bg-danger">
-                            Bajo Stock</span>
-                            {% elif inv.get('stock_actual', 0) <= (inv.get('stock_minimo', 0) + 10) %} <span
-                                class="badge bg-warning text-dark">Alerta</span>
-                                {% else %}
-                                <span class="badge bg-success">Óptimo</span>
-                                {% endif %}
-                    </td>
-                    <td>
-                        <form action="{{ url_for('inventario.actualizar', id=inv.get('id')) }}" method="POST"
-                            class="d-flex align-items-center">
-                            <input type="number" class="form-control form-control-sm me-2" name="stock_actual"
-                                value="{{ inv.get('stock_actual', 0) }}" style="width: 80px;" min="0" required>
-                            <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="6" class="text-center text-muted">No hay registros de inventario.</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
+<div class="card shadow-sm" style="border: 1px solid var(--macuin-border); border-radius: 8px; overflow: hidden;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="width: 100%;">
+                <thead style="background-color: var(--macuin-dark-blue);">
+                    <tr>
+                        <th style="color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">ID</th>
+                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Nombre</th>
+                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Marca</th>
+                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Modelo Compatible</th>
+                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Stock</th>
+                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Precio</th>
+                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Estatus</th>
+                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if inventarios %}
+                    {% for inv in inventarios %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding-left: 20px; font-weight: 600; color: #555;">{{ inv.get('id') }}</td>
+                        <td>{{ inv.get('autoparte', {}).get('nombre', 'Desconocido') }}</td>
+                        <td>{{ inv.get('autoparte', {}).get('marca', '—') }}</td>
+                        <td>{{ inv.get('autoparte', {}).get('modelo_compatible', '—') }}</td>
+                        <td style="font-weight: 600;">{{ inv.get('stock_actual', 0) }}</td>
+                        <td style="font-weight: 600;">${{ "%.2f"|format(inv.get('autoparte', {}).get('precio', 0)) }}</td>
+                        <td>
+                            {% if inv.get('stock_actual', 0) <= inv.get('stock_minimo', 0) %}
+                            <span class="badge bg-danger">Bajo Stock</span>
+                            {% elif inv.get('stock_actual', 0) <= (inv.get('stock_minimo', 0) + 10) %}
+                            <span class="badge bg-warning text-dark">Alerta</span>
+                            {% else %}
+                            <span class="badge bg-success">Óptimo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('autopartes.editar', id=inv.get('autoparte', {}).get('id')) }}"
+                                class="btn btn-sm btn-link text-primary p-0 me-2"><i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i></a>
+                            <form action="{{ url_for('autopartes.eliminar', id=inv.get('autoparte', {}).get('id')) }}" method="POST"
+                                class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar esta autoparte?');">
+                                <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i class="bi bi-trash" style="font-size: 1.1rem;"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">No hay registros de inventario.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

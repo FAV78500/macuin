@@ -27,10 +27,13 @@
                             Nombre</th>
                         <th
                             style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
-                            Categoría</th>
+                            Marca</th>
                         <th
                             style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
-                            Marca</th>
+                            Modelo Compatible</th>
+                        <th
+                            style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Stock</th>
                         <th
                             style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
                             Precio</th>
@@ -48,8 +51,9 @@
                     <tr style="border-bottom: 1px solid #f0f0f0;">
                         <td style="padding-left: 20px; font-weight: 600; color: #555;">{{ parte.get('id') }}</td>
                         <td>{{ parte.get('nombre') }}</td>
-                        <td>{{ parte.get('categoria', {}).get('nombre', '—') }}</td>
                         <td>{{ parte.get('marca') or '—' }}</td>
+                        <td>{{ parte.get('modelo_compatible') or '—' }}</td>
+                        <td style="font-weight: 600;">{{ parte.get('stock', 0) }}</td>
                         <td style="font-weight: 600;">${{ "%.2f"|format(parte.get('precio', 0)) }}</td>
                         <td>
                             {% if parte.get('activo') %}
@@ -75,7 +79,7 @@
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">No hay autopartes registradas.</td>
+                        <td colspan="8" class="text-center text-muted py-4">No hay autopartes registradas.</td>
                     </tr>
                     {% endif %}
                 </tbody>

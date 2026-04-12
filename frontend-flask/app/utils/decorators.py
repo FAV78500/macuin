@@ -14,9 +14,13 @@ def role_required(*roles):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            current_role = session.get('role')
+            print(f"DEBUG ROLE_REQUIRED - Rol actual: {current_role}, Roles permitidos: {roles}")
             if 'role' not in session or session['role'] not in roles:
+                print(f"DEBUG ROLE_REQUIRED - ACCESO DENEGADO - Rol no está en roles permitidos")
                 flash('No tienes permisos suficientes para acceder a esta página.', 'danger')
                 return redirect(url_for('dashboard.index'))
+            print(f"DEBUG ROLE_REQUIRED - ACCESO PERMITIDO")
             return f(*args, **kwargs)
         return decorated_function
     return decorator

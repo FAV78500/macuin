@@ -6,7 +6,7 @@ inventario_bp = Blueprint('inventario', __name__, url_prefix='/inventario')
 
 @inventario_bp.route('/')
 @login_required
-@role_required('admin', 'almacen')
+@role_required('admin', 'ventas', 'almacen', 'externo')
 def index():
     inventarios = api_client.get('/inventarios')
     return render_template('inventario/index.html', inventarios=inventarios)

@@ -48,6 +48,8 @@ services:
     build:
       context: ./frontend-flask
       dockerfile: Dockerfile
+    volumes:
+      - ./frontend-flask/app:/app/app
     networks:
       - red_frontends   
     ports:
@@ -55,7 +57,7 @@ services:
     environment:
       API_BASE_URL: http://api:8000/api/v1
       SECRET_KEY:   ${FLASK_SECRET_KEY}
-      FLASK_DEBUG:  ${FLASK_DEBUG:-0}
+      FLASK_DEBUG:  ${FLASK_DEBUG:-1}
     depends_on:
       - api
     restart: unless-stopped
