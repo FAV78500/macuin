@@ -70,6 +70,20 @@ class APIClient:
         except (requests.exceptions.RequestException, requests.exceptions.ConnectionError) as e:
             return self._mock_response('PATCH', endpoint, data)
 
+    def get_raw(self, endpoint, params=None):
+        """Obtiene respuesta raw (binaria) de la API - necesario para descarga de archivos."""
+        try:
+            response = requests.get(f"{self.base_url}{endpoint}", headers=self._get_headers(), params=params, timeout=10)
+            response.raise_for_status()
+            return response
+        except (requests.exceptions.RequestException, requests.exceptions.ConnectionError) as e:
+            # Para archivos, no usar mock - retornar error
+            class MockResponse:
+                status_code = 500
+                content = b''
+                headers = {}
+            return MockResponse()
+
     def _mock_response(self, method, endpoint, data=None):
         print(f"MOCKING API CALL: {method} {endpoint}")
         if endpoint == '/auth/login' and method == 'POST':
