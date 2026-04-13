@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_db, hash_password, verify_password, crear_token
+from app.dependencies import get_db, hash_password, verify_password, crear_token, get_current_user
 from app.models.usuario import Usuario, Rol
-from app.schemas.user import LoginRequest, TokenResponse, RegistroExterno, UsuarioOut
+from app.schemas.user import LoginRequest, TokenResponse, RegistroExterno, UsuarioOut, UsuarioUpdate
+from typing import Annotated
 
 router = APIRouter(prefix='/auth', tags=['Autenticación'])
 
@@ -50,3 +51,25 @@ def registro_externo(datos: RegistroExterno, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nuevo)
     return nuevo
+
+
+@router.get('/me', response_model=UsuarioOut)
+def obtener_perfil(
+    current_user: Annotated[Usuario, Depends(get_current_user)],
+):
+    return current_user
+
+@router.put('/me', response_model=UsuarioOut)
+def actualizar_perfil(
+    datos: UsuarioUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[Usuario, Depends(get_current_user)],
+):
+    cambios = datos.model_dump(exclude_unset=True)
+    if 'password' in cambios:
+        current_user.password_hash = hash_password(cambios.pop('password'))
+    for campo, valor in cambios.items():
+        setattr(current_user, campo, valor)
+    db.commit()
+    db.refresh(current_user)
+    return current_user

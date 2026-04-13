@@ -41,6 +41,7 @@ class UsuarioUpdate(BaseModel):
     rol:      Optional[Rol]       = None
     activo:   Optional[bool]      = None
     password: Optional[str]       = None
+    telefono: Optional[str]       = None
 
 
 class UsuarioOut(BaseModel):

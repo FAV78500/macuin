@@ -55,38 +55,59 @@
             @if(count($partes) > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($partes as $parte)
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition group">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition group
+                    {{ ($parte['stock'] ?? 0) == 0 ? 'opacity-75' : '' }}">
+
+                    {{-- Imagen placeholder --}}
                     <a href="/producto/{{ $parte['id'] }}" class="block overflow-hidden bg-gray-50 flex items-center justify-center h-40">
-                        <svg class="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         </svg>
                     </a>
+
                     <div class="p-4 flex flex-col flex-grow">
-                        <p class="text-xs text-gray-400 mb-1">{{ $parte['categoria']['nombre'] ?? '' }}@if($parte['marca']) · {{ $parte['marca'] }}@endif</p>
+                        <p class="text-xs text-gray-400 mb-1">
+                            {{ $parte['categoria']['nombre'] ?? '' }}
+                            @if($parte['marca']) · {{ $parte['marca'] }} @endif
+                        </p>
                         <h3 class="font-semibold text-gray-800 mb-1 leading-tight">
-                            <a href="/producto/{{ $parte['id'] }}" class="hover:text-macuin-blue transition">{{ $parte['nombre'] }}</a>
+                            <a href="/producto/{{ $parte['id'] }}" class="hover:text-macuin-blue transition">
+                                {{ $parte['nombre'] }}
+                            </a>
                         </h3>
                         @if($parte['numero_parte'])
                         <p class="text-xs text-gray-500 mb-3">Part #: {{ $parte['numero_parte'] }}</p>
                         @endif
-                        <div class="text-2xl font-bold text-macuin-red mb-3">${{ number_format($parte['precio'], 2) }}</div>
+                        <div class="text-2xl font-bold text-macuin-red mb-3">
+                            ${{ number_format($parte['precio'], 2) }}
+                        </div>
                         <div class="mt-auto">
-                            <form action="/carrito/agregar" method="POST">
-                                @csrf
-                                <input type="hidden" name="autoparte_id" value="{{ $parte['id'] }}">
-                                <input type="hidden" name="cantidad" value="1">
-                                @if(session('token'))
-                                <button type="submit"
-                                    class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2 rounded-md transition duration-200 flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                    Agregar
+                            @if(($parte['stock'] ?? 0) == 0)
+                                <button disabled
+                                    class="w-full bg-gray-300 text-gray-500 font-semibold py-2 rounded-md cursor-not-allowed flex items-center justify-center gap-2">
+                                    Sin stock
                                 </button>
-                                @else
-                                <a href="/login" class="w-full block text-center bg-macuin-blue hover:bg-blue-900 text-white font-semibold py-2 rounded-md transition">
-                                    Iniciar sesión
-                                </a>
-                                @endif
-                            </form>
+                            @else
+                                <form action="/carrito/agregar" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="autoparte_id" value="{{ $parte['id'] }}">
+                                    <input type="hidden" name="cantidad" value="1">
+                                    @if(session('token'))
+                                    <button type="submit"
+                                        class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2 rounded-md transition duration-200 flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                        Agregar
+                                    </button>
+                                    @else
+                                    <a href="/login"
+                                        class="w-full block text-center bg-macuin-blue hover:bg-blue-900 text-white font-semibold py-2 rounded-md transition">
+                                        Iniciar sesión
+                                    </a>
+                                    @endif
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>
