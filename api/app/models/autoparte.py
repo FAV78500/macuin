@@ -13,6 +13,7 @@ class Autoparte(Base):
     descripcion:  Mapped[Optional[str]] = mapped_column(Text,        nullable=True)
     numero_parte: Mapped[Optional[str]] = mapped_column(String(50),  nullable=True, unique=True)
     marca:        Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    imagen:       Mapped[Optional[str]] = mapped_column(Text,        nullable=True)
     precio:       Mapped[float]         = mapped_column(Numeric(10, 2))
     categoria_id: Mapped[int]           = mapped_column(ForeignKey('categorias.id'))
     activo:       Mapped[bool]          = mapped_column(Boolean,     default=True)

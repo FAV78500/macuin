@@ -32,6 +32,7 @@ def nuevo():
             'precio':       float(request.form.get('precio', 0)),
             'categoria_id': int(request.form.get('categoria_id', 0)),
             'activo':       bool(request.form.get('activo')),
+            'imagen':       request.form.get('imagen_base64') or None,
         }
         api_client.post('/autopartes', data=data)
         flash('Autoparte creada', 'success')
@@ -51,6 +52,7 @@ def editar(id):
             'precio':       float(request.form.get('precio', 0)),
             'categoria_id': int(request.form.get('categoria_id', 0)),
             'activo':       bool(request.form.get('activo')),
+            'imagen':       request.form.get('imagen_base64') or None,
         }
         api_client.put(f'/autopartes/{id}', data=data)
         flash('Autoparte actualizada', 'success')

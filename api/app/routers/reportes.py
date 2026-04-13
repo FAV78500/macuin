@@ -110,42 +110,52 @@ def reporte_clientes(
 def descargar_ventas(
     formato: str,
     db: Session = Depends(get_db),
-    _: Usuario = _ventas,
+    current_user: Usuario = _ventas,
 ):
     """Descarga reporte de ventas en PDF, XLSX o DOCX."""
-    # Obtener datos
-    rows = (
-        db.query(
-            func.to_char(Pedido.fecha_pedido, 'Mon').label('mes'),
-            func.sum(Pedido.total).label('total'),
-        )
+    pedidos = (
+        db.query(Pedido)
         .filter(Pedido.estado != EstadoPedido.cancelado)
-        .group_by(func.to_char(Pedido.fecha_pedido, 'Mon'), func.date_trunc('month', Pedido.fecha_pedido))
-        .order_by(func.date_trunc('month', Pedido.fecha_pedido))
-        .limit(12)
+        .order_by(Pedido.fecha_pedido.desc())
         .all()
     )
 
-    labels = [r.mes for r in rows]
-    data = [float(r.total or 0) for r in rows]
-    total = sum(data)
+    ventas = []
+    for p in pedidos:
+        categorias = set()
+        for d in p.detalles:
+            if d.autoparte and d.autoparte.categoria:
+                categorias.add(d.autoparte.categoria.nombre)
+        
+        iva = float(p.total) - float(p.subtotal) if p.total else 0.0
+        ventas.append({
+            'fecha': p.fecha_pedido.strftime('%Y-%m-%d'),
+            'id_venta': p.id,
+            'cliente': p.usuario.nombre if p.usuario else 'Desconocido',
+            'categoria': ", ".join(categorias) if categorias else 'General',
+            'subtotal': float(p.subtotal) if p.subtotal else 0.0,
+            'iva': iva,
+            'total': float(p.total) if p.total else 0.0
+        })
+
+    usuario_generador = current_user.nombre if current_user else "Administrador"
 
     if formato == 'pdf':
-        buffer = generar_pdf_ventas(labels, data, total)
+        buffer = generar_pdf_ventas(ventas, usuario_generador)
         return Response(
             content=buffer.getvalue(),
             media_type='application/pdf',
             headers={'Content-Disposition': 'attachment; filename=ventas_periodo.pdf'}
         )
     elif formato == 'xlsx':
-        buffer = generar_xlsx_ventas(labels, data, total)
+        buffer = generar_xlsx_ventas(ventas, usuario_generador)
         return Response(
             content=buffer.getvalue(),
             media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             headers={'Content-Disposition': 'attachment; filename=ventas_periodo.xlsx'}
         )
     elif formato == 'docx':
-        buffer = generar_docx_ventas(labels, data, total)
+        buffer = generar_docx_ventas(ventas, usuario_generador)
         return Response(
             content=buffer.getvalue(),
             media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -164,15 +174,20 @@ def descargar_pedidos(
     """Descarga reporte de pedidos en PDF, XLSX o DOCX."""
     pedidos = db.query(Pedido).order_by(Pedido.fecha_pedido.desc()).all()
 
-    resumen = [
-        {
+    resumen = []
+    for p in pedidos:
+        piezas = []
+        for d in p.detalles:
+            nombre_pieza = d.autoparte.nombre if d.autoparte else 'Desconocida'
+            piezas.append(f"{d.cantidad}x {nombre_pieza}")
+            
+        resumen.append({
             'id': p.id,
-            'estado': p.estado.value,
-            'total': float(p.total),
+            'cliente': p.usuario.nombre if p.usuario else 'Desconocido',
             'fecha': p.fecha_pedido.strftime('%Y-%m-%d'),
-        }
-        for p in pedidos
-    ]
+            'estado': p.estado.value,
+            'piezas': ", ".join(piezas)
+        })
 
     if formato == 'pdf':
         buffer = generar_pdf_pedidos(resumen)
@@ -214,10 +229,13 @@ def descargar_inventario(
 
     resumen = [
         {
-            'autoparte_id': inv.autoparte_id,
-            'nombre': auto.nombre,
+            'codigo_parte': auto.numero_parte or str(auto.id),
+            'marca': auto.marca or 'Genérica',
+            'descripcion': auto.nombre,
             'stock_actual': inv.stock_actual,
-            'stock_minimo': inv.stock_minimo,
+            'punto_reorden': inv.stock_minimo,
+            'valorizado': float(auto.precio * inv.stock_actual),
+            'familia': auto.categoria.nombre if hasattr(auto, 'categoria') and auto.categoria else 'General'
         }
         for inv, auto in inventario
     ]

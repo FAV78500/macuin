@@ -15,6 +15,7 @@ class AutoparteCreate(BaseModel):
     descripcion:  Optional[str]   = None
     numero_parte: Optional[str]   = None
     marca:        Optional[str]   = None
+    imagen:       Optional[str]   = None
     precio:       float
     categoria_id: int
     activo:       bool             = True
@@ -25,6 +26,7 @@ class AutoparteUpdate(BaseModel):
     descripcion:  Optional[str]   = None
     numero_parte: Optional[str]   = None
     marca:        Optional[str]   = None
+    imagen:       Optional[str]   = None
     precio:       Optional[float] = None
     categoria_id: Optional[int]   = None
     activo:       Optional[bool]  = None
@@ -36,6 +38,7 @@ class AutoparteOut(BaseModel):
     descripcion:  Optional[str]          = None
     numero_parte: Optional[str]          = None
     marca:        Optional[str]          = None
+    imagen:       Optional[str]          = None
     precio:       float
     categoria_id: int
     categoria:    Optional[CategoriaOut] = None

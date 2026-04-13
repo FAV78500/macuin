@@ -21,6 +21,9 @@
                     <tr>
                         <th
                             style="color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Imagen</th>
+                        <th
+                            style="color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
                             ID Parte</th>
                         <th
                             style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
@@ -49,6 +52,15 @@
                     {% if partes %}
                     {% for parte in partes %}
                     <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding-left: 20px;">
+                            {% if parte.get('imagen') %}
+                                <img src="{{ parte.get('imagen') }}" alt="{{ parte.get('nombre') }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                            {% else %}
+                                <div style="width: 40px; height: 40px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-image text-muted" style="font-size: 1.2rem;"></i>
+                                </div>
+                            {% endif %}
+                        </td>
                         <td style="padding-left: 20px; font-weight: 600; color: #555;">{{ parte.get('id') }}</td>
                         <td>{{ parte.get('nombre') }}</td>
                         <td>{{ parte.get('marca') or '—' }}</td>
