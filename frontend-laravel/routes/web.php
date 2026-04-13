@@ -31,4 +31,6 @@ Route::middleware('auth.api')->group(function () {
 
     Route::get('/perfil',               [PerfilController::class, 'index']);
     Route::get('/mis-pedidos',          [PerfilController::class, 'pedidos']);
+    Route::post('/perfil/actualizar',         [PerfilController::class, 'actualizar']);
+    Route::post('/perfil/cambiar-password',   [PerfilController::class, 'cambiarPassword']);
 });

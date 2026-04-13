@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class CategoriaOut(BaseModel):
@@ -41,8 +41,16 @@ class AutoparteOut(BaseModel):
     categoria:    Optional[CategoriaOut] = None
     activo:       bool
     created_at:   datetime
+    stock:        Optional[int]          = None
 
     model_config = {'from_attributes': True}
+
+    @model_validator(mode='before')
+    @classmethod
+    def extraer_stock(cls, data):
+        if hasattr(data, 'inventario') and data.inventario:
+            data.__dict__['stock'] = data.inventario.stock_actual
+        return data
 
 
 class InventarioOut(BaseModel):

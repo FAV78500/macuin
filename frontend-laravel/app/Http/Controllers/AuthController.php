@@ -26,7 +26,12 @@ class AuthController extends Controller
     {
         $request->validate([
             'email'    => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:6',
+        ], [
+            'email.required'    => 'El correo es obligatorio.',
+            'email.email'       => 'Ingresa un correo válido.',
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min'      => 'La contraseña debe tener al menos 6 caracteres.',
         ]);
 
         $result = $this->api->post('/auth/login', [
@@ -66,9 +71,19 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'nombre'   => 'required',
+            'nombre'   => 'required|string|max:100',
             'email'    => 'required|email',
-            'password' => 'required|min:6',
+            'telefono' => 'nullable|digits:10',
+            'password' => 'required|min:6|confirmed',
+        ], [
+            'nombre.required'           => 'El nombre del taller es obligatorio.',
+            'nombre.max'                => 'El nombre no puede tener más de 100 caracteres.',
+            'email.required'            => 'El correo es obligatorio.',
+            'email.email'               => 'Ingresa un correo válido.',
+            'telefono.digits'           => 'El teléfono debe tener exactamente 10 dígitos.',
+            'password.required'         => 'La contraseña es obligatoria.',
+            'password.min'              => 'La contraseña debe tener al menos 6 caracteres.',
+            'password.confirmed'        => 'Las contraseñas no coinciden.',
         ]);
 
         $result = $this->api->post('/auth/registro', [
