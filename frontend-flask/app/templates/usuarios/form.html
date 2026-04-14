@@ -25,6 +25,8 @@
                     <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
                     <input type="text" class="form-control" id="nombre" name="nombre"
                         value="{{ usuario.get('nombre', '') }}" required placeholder="Ej: Jesús Campos"
+                        maxlength="150" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+"
+                        title="Solo se permiten letras y espacios"
                         style="font-size: 0.9rem; padding: 10px;">
                 </div>
             </div>
@@ -36,6 +38,7 @@
                     <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
                     <input type="email" class="form-control" id="email" name="email"
                         value="{{ usuario.get('email', '') }}" required placeholder="campos.jesus@macuin.com"
+                        maxlength="150"
                         style="font-size: 0.9rem; padding: 10px;">
                 </div>
             </div>
@@ -70,8 +73,11 @@
                 </label>
                 <div class="input-group">
                     <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" {%
-                        if not usuario.get('id') %}required{% endif %} style="font-size: 0.9rem; padding: 10px;">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="••••••••"
+                        {% if not usuario.get('id') %}required{% endif %}
+                        minlength="8"
+                        title="La contraseña debe tener al menos 8 caracteres"
+                        style="font-size: 0.9rem; padding: 10px;">
                 </div>
             </div>
 
@@ -83,9 +89,8 @@
                         interno.</small>
                 </div>
                 <div class="form-check form-switch" style="font-size: 1.3rem;">
-                    <input class="form-check-input" type="checkbox" id="activo" name="activo" {% if
-                        usuario.get('activo', True) %}checked{% endif %}
-                        style="background-color: #10B981; border-color: #10B981;">
+                    <input class="form-check-input" type="checkbox" id="activo" name="activo"
+                        {% if usuario.get('activo', True) %}checked{% endif %}>
                 </div>
             </div>
 
@@ -102,5 +107,22 @@
 
     </div>
 </div>
+
+<script>
+    const activoCheckbox = document.getElementById('activo');
+
+    function updateActivo() {
+        if (activoCheckbox.checked) {
+            activoCheckbox.style.backgroundColor = '#10B981';
+            activoCheckbox.style.borderColor = '#10B981';
+        } else {
+            activoCheckbox.style.backgroundColor = '';
+            activoCheckbox.style.borderColor = '';
+        }
+    }
+
+    updateActivo();
+    activoCheckbox.addEventListener('change', updateActivo);
+</script>
 
 {% endblock %}
