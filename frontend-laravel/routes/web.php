@@ -30,8 +30,10 @@ Route::middleware('auth.api')->group(function () {
     Route::post('/pedido/confirmar',    [CarritoController::class, 'confirmar']);
     Route::post('/carrito/actualizar', [CarritoController::class, 'actualizar']);
 
-    Route::get('/perfil',               [PerfilController::class, 'index']);
-    Route::get('/mis-pedidos',          [PerfilController::class, 'pedidos']);
+    Route::get('/perfil',                        [PerfilController::class, 'index']);
+    Route::get('/mis-pedidos',                   [PerfilController::class, 'pedidos']);
+    Route::get('/mis-pedidos/{id}/factura',      [PerfilController::class, 'factura'])->where('id', '[0-9]+');
+    Route::post('/mis-pedidos/{id}/cancelar',    [PerfilController::class, 'cancelar'])->where('id', '[0-9]+');
     Route::post('/perfil/actualizar',         [PerfilController::class, 'actualizar']);
     Route::post('/perfil/cambiar-password',   [PerfilController::class, 'cambiarPassword']);
    

@@ -61,32 +61,38 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if estado == 'RECIBIDO' %}
-                                {% set select_style = "background-color: #fef0db; color: #e37400;" %}
-                            {% elif estado == 'SURTIDO' %}
-                                {% set select_style = "background-color: #ffeadb; color: #ff7b00;" %}
-                            {% elif estado == 'ENVIADO' %}
-                                {% set select_style = "background-color: #e6f4ea; color: #1e8e3e;" %}
+                            {% if estado == 'CANCELADO' %}
+                                <span class="badge bg-secondary" style="font-size: 0.75rem; padding: 6px 10px;">
+                                    <i class="bi bi-slash-circle me-1"></i>Cancelado
+                                </span>
                             {% else %}
-                                {% set select_style = "" %}
-                            {% endif %}
+                                {% if estado == 'RECIBIDO' %}
+                                    {% set select_style = "background-color: #fef0db; color: #e37400;" %}
+                                {% elif estado == 'SURTIDO' %}
+                                    {% set select_style = "background-color: #ffeadb; color: #ff7b00;" %}
+                                {% elif estado == 'ENVIADO' %}
+                                    {% set select_style = "background-color: #e6f4ea; color: #1e8e3e;" %}
+                                {% else %}
+                                    {% set select_style = "" %}
+                                {% endif %}
 
-                            <form action="{{ url_for('pedidos.estatus', id=pedido.get('id')) }}" method="POST"
-                                class="d-flex align-items-center gap-2">
-                                <div class="input-group input-group-sm" style="width: auto;">
-                                    <select class="form-select form-select-sm" name="estado_id" required
-                                        style='font-size: 0.8rem; border-radius: 6px 0 0 6px; border-right: none; max-width: 140px; font-weight: 600; border-color: #dee2e6; {{ select_style }}'
-                                        <option value="1" {% if estado=='RECIBIDO' %}selected{% endif %}>Recibido</option>
-                                        <option value="2" {% if estado=='SURTIDO' %}selected{% endif %}>Surtido</option>
-                                        <option value="3" {% if estado=='ENVIADO' %}selected{% endif %}>Enviado</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-sm btn-primary px-3"
-                                        style="border-radius: 0 6px 6px 0; font-size: 0.8rem; background-color: var(--macuin-dark-blue); border-color: var(--macuin-dark-blue);">
-                                        <i class="bi bi-check2"></i>
-                                    </button>
-                                </div>
-                                <a href="#" class="btn btn-sm text-primary p-1"><i class="bi bi-eye"></i></a>
-                            </form>
+                                <form action="{{ url_for('pedidos.estatus', id=pedido.get('id')) }}" method="POST"
+                                    class="d-flex align-items-center gap-2">
+                                    <div class="input-group input-group-sm" style="width: auto;">
+                                        <select class="form-select form-select-sm" name="estado_id" required
+                                            style='font-size: 0.8rem; border-radius: 6px 0 0 6px; border-right: none; max-width: 140px; font-weight: 600; border-color: #dee2e6; {{ select_style }}'
+                                            <option value="1" {% if estado=='RECIBIDO' %}selected{% endif %}>Recibido</option>
+                                            <option value="2" {% if estado=='SURTIDO' %}selected{% endif %}>Surtido</option>
+                                            <option value="3" {% if estado=='ENVIADO' %}selected{% endif %}>Enviado</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-primary px-3"
+                                            style="border-radius: 0 6px 6px 0; font-size: 0.8rem; background-color: var(--macuin-dark-blue); border-color: var(--macuin-dark-blue);">
+                                            <i class="bi bi-check2"></i>
+                                        </button>
+                                    </div>
+                                    <a href="#" class="btn btn-sm text-primary p-1"><i class="bi bi-eye"></i></a>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -123,52 +129,44 @@
 
 <!-- Bottom Status Counters -->
 <div class="row mt-4">
-    {% set count_recibido = 0 %}
-    {% set count_surtido = 0 %}
-    {% set count_enviado = 0 %}
-
-    {% if pedidos %}
+    {% set counts = namespace(recibido=0, surtido=0, enviado=0, cancelado=0) %}
     {% for p in pedidos %}
-    {% set eid = p.get('estado', 'RECIBIDO') %}
-    {% if eid == 'RECIBIDO' %}{% set count_recibido = count_recibido + 1 %}{% endif %}
-    {% if eid == 'SURTIDO' %}{% set count_surtido = count_surtido + 1 %}{% endif %}
-    {% if eid == 'ENVIADO' %}{% set count_enviado = count_enviado + 1 %}{% endif %}
+    {% set eid = p.get('estado', '') %}
+    {% if eid == 'RECIBIDO' %}{% set counts.recibido = counts.recibido + 1 %}{% endif %}
+    {% if eid == 'SURTIDO' %}{% set counts.surtido = counts.surtido + 1 %}{% endif %}
+    {% if eid == 'ENVIADO' %}{% set counts.enviado = counts.enviado + 1 %}{% endif %}
+    {% if eid == 'CANCELADO' %}{% set counts.cancelado = counts.cancelado + 1 %}{% endif %}
     {% endfor %}
-    {% endif %}
 
     <div class="col-md-3">
-        <div class="card shadow-sm h-100" style="border: 1px solid #fef0db; border-left: 4px solid #fef0db;">
+        <div class="card shadow-sm h-100" style="border: 1px solid #fef0db; border-left: 4px solid #e37400;">
             <div class="card-body p-3">
-                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Pendientes de
-                    Surtido</div>
-                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ count_recibido }}
-                </div>
+                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Recibidos</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ counts.recibido }}</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card shadow-sm h-100" style="border: 1px solid #ffeadb; border-left: 4px solid #ffeadb;">
+        <div class="card shadow-sm h-100" style="border: 1px solid #ffeadb; border-left: 4px solid #ff7b00;">
             <div class="card-body p-3">
                 <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Surtidos</div>
-                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ count_surtido }}
-                </div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ counts.surtido }}</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card shadow-sm h-100" style="border: 1px solid #dee2e6; border-left: 4px solid #aab7c4;">
+        <div class="card shadow-sm h-100" style="border: 1px solid #e6f4ea; border-left: 4px solid #1e8e3e;">
             <div class="card-body p-3">
                 <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Enviados</div>
-                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ count_enviado }}
-                </div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ counts.enviado }}</div>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card shadow-sm h-100" style="border: 1px solid #e6f4ea; border-left: 4px solid #e6f4ea;">
+        <div class="card shadow-sm h-100" style="border: 1px solid #f5f5f5; border-left: 4px solid #555;">
             <div class="card-body p-3">
-                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Entregados</div>
-                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">0</div>
+                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Cancelados</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ counts.cancelado }}</div>
             </div>
         </div>
     </div>

@@ -538,3 +538,225 @@ def generar_docx_clientes(clientes: List[dict], usuario: str) -> io.BytesIO:
     doc.save(buffer)
     buffer.seek(0)
     return buffer
+
+
+# ── Factura por Pedido ─────────────────────────────────────────────────────────
+
+def generar_pdf_factura(pedido: dict) -> io.BytesIO:
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=letter,
+        leftMargin=0.75*inch, rightMargin=0.75*inch,
+        topMargin=0.75*inch, bottomMargin=0.75*inch,
+    )
+    elements = []
+    styles = getSampleStyleSheet()
+
+    AZUL  = colors.HexColor('#1E3A8A')
+    ROJO  = colors.HexColor('#DC2626')
+    GRIS  = colors.HexColor('#F1F5F9')
+    NEGRO = colors.HexColor('#1E293B')
+
+    title_style = ParagraphStyle(
+        'FacTitle', fontName='Helvetica-Bold', fontSize=22,
+        textColor=AZUL, spaceAfter=2,
+    )
+    sub_style = ParagraphStyle(
+        'FacSub', fontName='Helvetica', fontSize=9,
+        textColor=colors.HexColor('#64748B'), spaceAfter=2,
+    )
+    label_style = ParagraphStyle(
+        'FacLabel', fontName='Helvetica-Bold', fontSize=8,
+        textColor=colors.HexColor('#64748B'), spaceAfter=1,
+    )
+    value_style = ParagraphStyle(
+        'FacValue', fontName='Helvetica', fontSize=9,
+        textColor=NEGRO, spaceAfter=2,
+    )
+    footer_style = ParagraphStyle(
+        'FacFooter', fontName='Helvetica', fontSize=7,
+        textColor=colors.gray, alignment=1,
+    )
+
+    pedido_id   = pedido.get('id', 0)
+    fecha_raw   = pedido.get('fecha_pedido', '')
+    try:
+        fecha_dt = datetime.datetime.fromisoformat(str(fecha_raw)[:19])
+        fecha_str = fecha_dt.strftime('%d/%m/%Y')
+    except Exception:
+        fecha_str = str(fecha_raw)[:10]
+
+    cliente      = pedido.get('usuario', {}).get('nombre', 'Cliente')
+    direccion    = pedido.get('direccion_entrega') or 'No especificada'
+    estado       = pedido.get('estado', 'RECIBIDO')
+    subtotal    = float(pedido.get('subtotal', 0))
+    envio       = 0.0 if subtotal >= 1000 else round(subtotal * 0.15, 2)
+    iva         = round((subtotal + envio) * 0.16, 2)
+    total_final = round((subtotal + envio) * 1.16, 2)
+    folio        = f"FAC-{pedido_id:05d}"
+    fecha_hoy    = datetime.datetime.now().strftime('%d/%m/%Y')
+
+    # ── Cabecera ────────────────────────────────────────────────────────────────
+    header_data = [[
+        Paragraph("<b>MACUIN</b>", title_style),
+        Paragraph(f"<b>FACTURA</b>", ParagraphStyle(
+            'FacTitleR', fontName='Helvetica-Bold', fontSize=22,
+            textColor=ROJO, alignment=2,
+        )),
+    ]]
+    header_sub = [[
+        Paragraph("Refacciones Automotrices<br/>contacto@macuin.com", sub_style),
+        Paragraph(
+            f"<b>Folio:</b> {folio}<br/>"
+            f"<b>Fecha de emisión:</b> {fecha_hoy}<br/>"
+            f"<b>Fecha de pedido:</b> {fecha_str}",
+            ParagraphStyle('FacSubR', fontName='Helvetica', fontSize=9,
+                           textColor=colors.HexColor('#64748B'), alignment=2),
+        ),
+    ]]
+
+    for row in [header_data, header_sub]:
+        t = Table(row, colWidths=[3.5*inch, 3.5*inch])
+        t.setStyle(TableStyle([
+            ('VALIGN',     (0,0), (-1,-1), 'TOP'),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ]))
+        elements.append(t)
+
+    elements.append(Spacer(1, 0.15*inch))
+
+    # Línea separadora
+    sep = Table([['']], colWidths=[7*inch])
+    sep.setStyle(TableStyle([
+        ('LINEABOVE', (0,0), (-1,-1), 2, AZUL),
+        ('TOPPADDING', (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+    ]))
+    elements.append(sep)
+    elements.append(Spacer(1, 0.15*inch))
+
+    # ── Datos del cliente ───────────────────────────────────────────────────────
+    cliente_data = [[
+        Paragraph("FACTURAR A", ParagraphStyle(
+            'SecTitle', fontName='Helvetica-Bold', fontSize=8,
+            textColor=colors.white, spaceAfter=0,
+        )),
+        Paragraph("ESTADO DEL PEDIDO", ParagraphStyle(
+            'SecTitle2', fontName='Helvetica-Bold', fontSize=8,
+            textColor=colors.white, spaceAfter=0,
+        )),
+    ]]
+    t = Table(cliente_data, colWidths=[3.5*inch, 3.5*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND',    (0,0), (-1,-1), AZUL),
+        ('TEXTCOLOR',     (0,0), (-1,-1), colors.white),
+        ('TOPPADDING',    (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('LEFTPADDING',   (0,0), (-1,-1), 8),
+    ]))
+    elements.append(t)
+
+    estado_color_map = {
+        'RECIBIDO': '#F59E0B', 'SURTIDO': '#F97316',
+        'ENVIADO':  '#16A34A', 'CANCELADO': '#6B7280',
+    }
+    estado_color = colors.HexColor(estado_color_map.get(estado, '#6B7280'))
+
+    info_data = [[
+        Paragraph(f"{cliente}<br/><font size='8' color='#64748B'>Dirección: {direccion}</font>", value_style),
+        Paragraph(
+            f"<font color='{estado_color_map.get(estado, '#6B7280')}'><b>{estado}</b></font>",
+            ParagraphStyle('EstadoStyle', fontName='Helvetica-Bold', fontSize=11,
+                           textColor=estado_color, alignment=0, leftIndent=8),
+        ),
+    ]]
+    t = Table(info_data, colWidths=[3.5*inch, 3.5*inch])
+    t.setStyle(TableStyle([
+        ('BACKGROUND',    (0,0), (-1,-1), GRIS),
+        ('TOPPADDING',    (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('LEFTPADDING',   (0,0), (-1,-1), 8),
+        ('BOX',           (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+    ]))
+    elements.append(t)
+    elements.append(Spacer(1, 0.2*inch))
+
+    # ── Tabla de partidas ───────────────────────────────────────────────────────
+    col_widths = [0.4*inch, 2.5*inch, 1.1*inch, 0.7*inch, 1.2*inch, 1.1*inch]
+
+    items_data = [['#', 'Descripción', 'Marca', 'Cant.', 'P. Unitario', 'Importe']]
+    detalles = pedido.get('detalles', [])
+    for i, d in enumerate(detalles, start=1):
+        auto    = d.get('autoparte', {}) or {}
+        cant    = d.get('cantidad', 0)
+        precio  = float(d.get('precio_unitario', 0))
+        importe = cant * precio
+        items_data.append([
+            str(i),
+            auto.get('nombre', '—'),
+            auto.get('marca', '—') or '—',
+            str(cant),
+            f"${precio:,.2f}",
+            f"${importe:,.2f}",
+        ])
+
+    t = Table(items_data, colWidths=col_widths, repeatRows=1)
+    t.setStyle(TableStyle([
+        ('BACKGROUND',    (0,0), (-1,0), AZUL),
+        ('TEXTCOLOR',     (0,0), (-1,0), colors.white),
+        ('FONTNAME',      (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE',      (0,0), (-1,0), 8),
+        ('TOPPADDING',    (0,0), (-1,0), 7),
+        ('BOTTOMPADDING', (0,0), (-1,0), 7),
+        ('ALIGN',         (0,0), (-1,0), 'CENTER'),
+        ('FONTNAME',      (0,1), (-1,-1), 'Helvetica'),
+        ('FONTSIZE',      (0,1), (-1,-1), 8),
+        ('TOPPADDING',    (0,1), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,1), (-1,-1), 6),
+        ('ALIGN',         (0,1), (0,-1), 'CENTER'),
+        ('ALIGN',         (3,1), (-1,-1), 'RIGHT'),
+        ('ROWBACKGROUNDS',(0,1), (-1,-1), [colors.white, GRIS]),
+        ('GRID',          (0,0), (-1,-1), 0.3, colors.HexColor('#E2E8F0')),
+        ('LINEBELOW',     (0,0), (-1,0), 1, AZUL),
+    ]))
+    elements.append(t)
+    elements.append(Spacer(1, 0.15*inch))
+
+    # ── Totales ──────────────────────────────────────────────────────────────────
+    envio_label = 'Envío: Gratis' if envio == 0 else f'Envío (15%):'
+    envio_valor = '—' if envio == 0 else f"${envio:,.2f}"
+    totales_data = [
+        ['', 'Subtotal:', f"${subtotal:,.2f}"],
+        ['', envio_label, envio_valor],
+        ['', 'IVA (16%):', f"${iva:,.2f}"],
+        ['', 'TOTAL:', f"${total_final:,.2f}"],
+    ]
+    t = Table(totales_data, colWidths=[4.3*inch, 1.5*inch, 1.2*inch])
+    t.setStyle(TableStyle([
+        ('ALIGN',         (1,0),  (-1,-1), 'RIGHT'),
+        ('FONTNAME',      (1,0),  (-1,-2), 'Helvetica'),
+        ('FONTNAME',      (1,-1), (-1,-1), 'Helvetica-Bold'),
+        ('FONTSIZE',      (0,0),  (-1,-1), 9),
+        ('FONTSIZE',      (1,-1), (-1,-1), 11),
+        ('TEXTCOLOR',     (1,-1), (-1,-1), AZUL),
+        ('TOPPADDING',    (0,0),  (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0),  (-1,-1), 4),
+        ('LINEABOVE',     (1,-1), (-1,-1), 1, AZUL),
+        ('BACKGROUND',    (1,-1), (-1,-1), colors.HexColor('#EFF6FF')),
+        ('TEXTCOLOR',     (1,1),  (-1,1),  colors.HexColor('#16A34A') if envio == 0 else colors.black),
+    ]))
+    elements.append(t)
+    elements.append(Spacer(1, 0.3*inch))
+
+    # ── Pie ───────────────────────────────────────────────────────────────────────
+    elements.append(sep)
+    elements.append(Spacer(1, 0.1*inch))
+    elements.append(Paragraph(
+        "Este documento es una representación impresa de factura. "
+        "MACUIN — Refacciones Automotrices. Todos los precios en MXN.",
+        footer_style,
+    ))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer

@@ -18,7 +18,10 @@ class CarritoController extends Controller
     {
         $carrito  = session('carrito', []);
         $subtotal = array_sum(array_map(fn($i) => $i['precio'] * $i['cantidad'], $carrito));
-        return view('carrito.index', compact('carrito', 'subtotal'));
+        $envio    = $subtotal >= 1000 ? 0.0 : round($subtotal * 0.15, 2);
+        $iva      = round(($subtotal + $envio) * 0.16, 2);
+        $total    = round(($subtotal + $envio) * 1.16, 2);
+        return view('carrito.index', compact('carrito', 'subtotal', 'envio', 'iva', 'total'));
     }
 
     public function agregar(Request $request)

@@ -73,4 +73,18 @@ class ApiClient
             return ['error' => $e->getMessage()];
         }
     }
+
+    public function getBytes(string $path): array
+    {
+        try {
+            $response = Http::withHeaders($this->headers())->get($this->base_url . $path);
+            return [
+                'status'  => $response->status(),
+                'body'    => $response->body(),
+                'headers' => $response->headers(),
+            ];
+        } catch (\Exception $e) {
+            return ['status' => 500, 'body' => '', 'headers' => []];
+        }
+    }
 }

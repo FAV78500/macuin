@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db, get_current_user, require_roles
@@ -9,6 +10,7 @@ from app.models.inventario import Inventario
 from app.models.pedido import Pedido, EstadoPedido
 from app.models.usuario import Usuario, Rol
 from app.schemas.pedido import PedidoCreate, PedidoOut, EstadoUpdate
+from app.services.reporte_service import generar_pdf_factura
 
 router = APIRouter(prefix='/pedidos', tags=['Pedidos'])
 
@@ -95,10 +97,13 @@ def crear_pedido(
             precio_unitario=autoparte.precio,
         ))
 
+    envio = 0.0 if subtotal >= 1000 else round(subtotal * 0.15, 2)
+    total = round((subtotal + envio) * 1.16, 2)
+
     pedido = Pedido(
         usuario_id=current_user.id,
         subtotal=subtotal,
-        total=subtotal,  # sin impuestos adicionales por ahora
+        total=total,
         direccion_entrega=datos.direccion_entrega,
     )
     db.add(pedido)
@@ -137,6 +142,47 @@ def actualizar_estado(
     db.commit()
     db.refresh(pedido)
     return pedido
+
+
+@router.get('/{id}/factura')
+def descargar_factura(
+    id:           int,
+    db:           Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    pedido = db.query(Pedido).filter(Pedido.id == id).first()
+    if not pedido:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Pedido no encontrado')
+    if current_user.rol == Rol.externo and pedido.usuario_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Sin acceso a este pedido')
+
+    pedido_dict = {
+        'id':                pedido.id,
+        'fecha_pedido':      pedido.fecha_pedido.isoformat(),
+        'estado':            pedido.estado.value,
+        'subtotal':          float(pedido.subtotal),
+        'total':             float(pedido.total),
+        'direccion_entrega': pedido.direccion_entrega,
+        'usuario':           {'nombre': pedido.usuario.nombre} if pedido.usuario else {},
+        'detalles': [
+            {
+                'cantidad':        d.cantidad,
+                'precio_unitario': float(d.precio_unitario),
+                'autoparte': {
+                    'nombre': d.autoparte.nombre if d.autoparte else '—',
+                    'marca':  d.autoparte.marca  if d.autoparte else '—',
+                } if d.autoparte else {},
+            }
+            for d in pedido.detalles
+        ],
+    }
+
+    buffer = generar_pdf_factura(pedido_dict)
+    return Response(
+        content=buffer.getvalue(),
+        media_type='application/pdf',
+        headers={'Content-Disposition': f'attachment; filename=factura-{id:05d}.pdf'},
+    )
 
 
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)

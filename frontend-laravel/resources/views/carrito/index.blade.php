@@ -70,15 +70,29 @@
                         </div>
                         <div class="flex justify-between">
                             <span>Envío:</span>
-                            <span class="font-semibold text-gray-900">Por calcular</span>
+                            @if($envio == 0)
+                            <span class="font-semibold text-green-600">Gratis</span>
+                            @else
+                            <span class="font-semibold text-gray-900">${{ number_format($envio, 2) }}</span>
+                            @endif
+                        </div>
+                        <div class="flex justify-between">
+                            <span>IVA (16%):</span>
+                            <span class="font-semibold text-gray-900">${{ number_format($iva, 2) }}</span>
                         </div>
                     </div>
+
+                    @if($subtotal > 0 && $subtotal < 1000)
+                    <p class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 mb-4">
+                        Agrega ${{ number_format(1000 - $subtotal, 2) }} más para obtener envío gratis.
+                    </p>
+                    @endif
 
                     <hr class="my-4 border-gray-200">
 
                     <div class="flex justify-between items-center mb-6">
-                        <span class="text-lg font-bold text-gray-900">Total aprox:</span>
-                        <span class="text-2xl font-bold text-macuin-blue">${{ number_format($subtotal, 2) }} MXN</span>
+                        <span class="text-lg font-bold text-gray-900">Total:</span>
+                        <span class="text-2xl font-bold text-macuin-blue">${{ number_format($total, 2) }} MXN</span>
                     </div>
 
                     <form action="/pedido/confirmar" method="POST">

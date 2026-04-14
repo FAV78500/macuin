@@ -67,4 +67,26 @@ class PerfilController extends Controller
         }
         return view('perfil.pedidos', compact('pedidos'));
     }
+
+    public function cancelar($id)
+    {
+        $result = $this->api->delete("/pedidos/{$id}");
+        if (isset($result['error']) || isset($result['detail'])) {
+            $msg = $result['detail'] ?? ($result['error'] ?? 'No se pudo cancelar el pedido.');
+            return redirect('/mis-pedidos')->with('error', $msg);
+        }
+        return redirect('/mis-pedidos')->with('success', 'Pedido cancelado correctamente.');
+    }
+
+    public function factura($id)
+    {
+        $result = $this->api->getBytes("/pedidos/{$id}/factura");
+        if ($result['status'] !== 200) {
+            return back()->with('error', 'No se pudo generar la factura.');
+        }
+        return response($result['body'], 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => "attachment; filename=factura-{$id}.pdf",
+        ]);
+    }
 }

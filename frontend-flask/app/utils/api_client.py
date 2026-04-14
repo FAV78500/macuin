@@ -43,7 +43,13 @@ class APIClient:
             response = requests.post(f"{self.base_url}{endpoint}", headers=self._get_headers(), json=data, timeout=15)
             response.raise_for_status()
             return response.json()
-        except (requests.exceptions.RequestException, requests.exceptions.ConnectionError) as e:
+        except requests.exceptions.HTTPError as e:
+            try:
+                detail = e.response.json().get('detail', 'Credenciales inválidas')
+            except Exception:
+                detail = 'Credenciales inválidas'
+            return {'error': detail}
+        except (requests.exceptions.RequestException, requests.exceptions.ConnectionError):
             return self._mock_response('POST', endpoint, data)
 
     def put(self, endpoint, data=None):
@@ -111,7 +117,7 @@ class APIClient:
                 # Fallback para pruebas rápidas
                 return {'token': 'mocked_jwt_token', 'user': {'name': 'Admin Macuin', 'role': 'admin', 'role_id': 1}}
             else:
-                return {'error': 'Credenciales inválidas'}, 401
+                return {'error': 'Credenciales inválidas'}
                 
         if endpoint == '/autopartes':
             if method == 'GET':
