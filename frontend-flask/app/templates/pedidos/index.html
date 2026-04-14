@@ -61,19 +61,31 @@
                             {% endif %}
                         </td>
                         <td>
+                            {% if estado == 'RECIBIDO' %}
+                                {% set select_style = "background-color: #fef0db; color: #e37400;" %}
+                            {% elif estado == 'SURTIDO' %}
+                                {% set select_style = "background-color: #ffeadb; color: #ff7b00;" %}
+                            {% elif estado == 'ENVIADO' %}
+                                {% set select_style = "background-color: #e6f4ea; color: #1e8e3e;" %}
+                            {% else %}
+                                {% set select_style = "" %}
+                            {% endif %}
+
                             <form action="{{ url_for('pedidos.estatus', id=pedido.get('id')) }}" method="POST"
-                                class="d-flex align-items-center">
-                                <select class="form-select form-select-sm me-2" name="estado_id" required
-                                    style="width: auto; font-size: 0.8rem; border-radius: 6px; padding: 4px 10px;">
-                                    <option value="1" {% if estado=='RECIBIDO' %}selected{% endif %}>Recibido</option>
-                                    <option value="2" {% if estado=='SURTIDO' %}selected{% endif %}>Surtido</option>
-                                    <option value="3" {% if estado=='ENVIADO' %}selected{% endif %}>Enviado</option>
-                                </select>
-                                <button type="submit" class="btn btn-sm btn-outline-secondary px-2"
-                                    style="border-radius: 6px; font-size: 0.8rem;">
-                                    Actualizar <i class="bi bi-chevron-down ms-1" style="font-size: 0.7rem;"></i>
-                                </button>
-                                <a href="#" class="btn btn-sm text-primary ms-2"><i class="bi bi-eye"></i></a>
+                                class="d-flex align-items-center gap-2">
+                                <div class="input-group input-group-sm" style="width: auto;">
+                                    <select class="form-select form-select-sm" name="estado_id" required
+                                        style='font-size: 0.8rem; border-radius: 6px 0 0 6px; border-right: none; max-width: 140px; font-weight: 600; border-color: #dee2e6; {{ select_style }}'
+                                        <option value="1" {% if estado=='RECIBIDO' %}selected{% endif %}>Recibido</option>
+                                        <option value="2" {% if estado=='SURTIDO' %}selected{% endif %}>Surtido</option>
+                                        <option value="3" {% if estado=='ENVIADO' %}selected{% endif %}>Enviado</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary px-3"
+                                        style="border-radius: 0 6px 6px 0; font-size: 0.8rem; background-color: var(--macuin-dark-blue); border-color: var(--macuin-dark-blue);">
+                                        <i class="bi bi-check2"></i>
+                                    </button>
+                                </div>
+                                <a href="#" class="btn btn-sm text-primary p-1"><i class="bi bi-eye"></i></a>
                             </form>
                         </td>
                     </tr>
@@ -88,7 +100,7 @@
         </div>
 
         <!-- Pagination Mockup -->
-        <div class="d-flex justify-content-between align-items-center p-3 border-top"
+        <!-- <div class="d-flex justify-content-between align-items-center p-3 border-top"
             style="background-color: #fafafa;">
             <small class="text-muted">Mostrando 1-{{ pedidos|length if pedidos else 0 }} de {{ pedidos|length if pedidos
                 else 0 }} pedidos</small>
@@ -105,7 +117,7 @@
                                 class="bi bi-chevron-right"></i></a></li>
                 </ul>
             </nav>
-        </div>
+        </div> -->
     </div>
 </div>
 

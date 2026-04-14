@@ -93,4 +93,37 @@ class CarritoController extends Controller
         session()->forget('carrito');
         return view('pedido.confirmacion', ['pedido' => $result]);
     }
+    public function actualizar(Request $request)
+    {
+        $request->validate([
+            'autoparte_id' => 'required|integer',
+            'accion'       => 'required|in:sumar,restar',
+        ]);
+
+        $autoparte_id = (int) $request->autoparte_id;
+        $accion       = $request->accion;
+
+        $carrito = session('carrito', []);
+
+        foreach ($carrito as &$item) {
+            if ($item['autoparte_id'] === $autoparte_id) {
+                if ($accion === 'sumar') {
+                    $item['cantidad']++;
+                } elseif ($accion === 'restar') {
+                    $item['cantidad']--;
+                    // Si llega a 0, se elimina del carrito
+                    if ($item['cantidad'] <= 0) {
+                        $carrito = array_values(array_filter($carrito, fn($i) => $i['autoparte_id'] !== $autoparte_id));
+                        session(['carrito' => $carrito]);
+                        return redirect('/carrito');
+                    }
+                }
+                break;
+            }
+        }
+        unset($item);
+
+        session(['carrito' => $carrito]);
+        return redirect('/carrito');
+    }
 }

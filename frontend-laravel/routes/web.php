@@ -28,9 +28,11 @@ Route::middleware('auth.api')->group(function () {
     Route::post('/carrito/agregar',     [CarritoController::class, 'agregar']);
     Route::post('/carrito/quitar',      [CarritoController::class, 'quitar']);
     Route::post('/pedido/confirmar',    [CarritoController::class, 'confirmar']);
+    Route::post('/carrito/actualizar', [CarritoController::class, 'actualizar']);
 
     Route::get('/perfil',               [PerfilController::class, 'index']);
     Route::get('/mis-pedidos',          [PerfilController::class, 'pedidos']);
     Route::post('/perfil/actualizar',         [PerfilController::class, 'actualizar']);
     Route::post('/perfil/cambiar-password',   [PerfilController::class, 'cambiarPassword']);
+   
 });

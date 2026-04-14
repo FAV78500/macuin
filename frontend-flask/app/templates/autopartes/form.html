@@ -21,7 +21,7 @@
                             style="font-size: 0.85rem; font-weight: 600;">Nombre de la Parte</label>
                         <input type="text" class="form-control" id="nombre" name="nombre"
                             value="{{ parte.get('nombre', '') }}" required placeholder="Bujía Iridio NGK"
-                            style="font-size: 0.9rem; padding: 10px;">
+                            maxlength="150" style="font-size: 0.9rem; padding: 10px;">
                     </div>
 
                     <div class="mb-3">
@@ -29,7 +29,7 @@
                             style="font-size: 0.85rem; font-weight: 600;">Número de Parte</label>
                         <input type="text" class="form-control" id="numero_parte" name="numero_parte"
                             value="{{ parte.get('numero_parte', '') }}" placeholder="NGK-IR-7450"
-                            style="font-size: 0.9rem; padding: 10px;">
+                            maxlength="150" style="font-size: 0.9rem; padding: 10px;">
                     </div>
 
                     <div class="mb-3">
@@ -37,7 +37,7 @@
                             style="font-size: 0.85rem; font-weight: 600;">Marca</label>
                         <input type="text" class="form-control" id="marca" name="marca"
                             value="{{ parte.get('marca', '') }}" placeholder="NGK, Bosch, Brembo..."
-                            style="font-size: 0.9rem; padding: 10px;">
+                            maxlength="150" style="font-size: 0.9rem; padding: 10px;">
                     </div>
 
                     <div class="mb-3">
@@ -64,7 +64,7 @@
                             style="font-size: 0.85rem; font-weight: 600;">Descripción</label>
                         <textarea class="form-control" id="descripcion" name="descripcion" rows="4"
                             placeholder="Bujía de iridio de alto rendimiento..."
-                            style="font-size: 0.9rem; padding: 10px;">{{ parte.get('descripcion', '') }}</textarea>
+                            maxlength="500" style="font-size: 0.9rem; padding: 10px;">{{ parte.get('descripcion', '') }}</textarea>
                     </div>
 
                     <div class="mb-3">
@@ -86,11 +86,12 @@
                         <label class="form-label text-muted d-block"
                             style="font-size: 0.85rem; font-weight: 600;">Activo del Producto</label>
                         <div class="form-check form-switch" style="font-size: 1.1rem;">
-                            <input class="form-check-input" type="checkbox" id="activo" name="activo" {% if
-                                parte.get('activo', True) %}checked{% endif %}
-                                style="background-color: #10B981; border-color: #10B981;">
-                            <label class="form-check-label ms-2" for="activo"
-                                style="font-size: 0.9rem; font-weight: 600; color: #10B981;">Activo</label>
+                            <input class="form-check-input" type="checkbox" id="activo" name="activo"
+                                {% if parte.get('activo', True) %}checked{% endif %}>
+                            <label class="form-check-label ms-2" for="activo" id="activo-label"
+                                style="font-size: 0.9rem; font-weight: 600;">
+                                {% if parte.get('activo', True) %}Activo{% else %}Inactivo{% endif %}
+                            </label>
                         </div>
                     </div>
 
@@ -132,6 +133,28 @@
 </div>
 
 <script>
+    // --- Toggle Activo ---
+    const activoCheckbox = document.getElementById('activo');
+    const activoLabel = document.getElementById('activo-label');
+
+    function updateActivo() {
+        if (activoCheckbox.checked) {
+            activoCheckbox.style.backgroundColor = '#10B981';
+            activoCheckbox.style.borderColor = '#10B981';
+            activoLabel.style.color = '#10B981';
+            activoLabel.textContent = 'Activo';
+        } else {
+            activoCheckbox.style.backgroundColor = '';
+            activoCheckbox.style.borderColor = '';
+            activoLabel.style.color = '#6B7280';
+            activoLabel.textContent = 'Inactivo';
+        }
+    }
+
+    updateActivo();
+    activoCheckbox.addEventListener('change', updateActivo);
+
+    // --- Preview de Imagen ---
     document.getElementById('imagen_file').addEventListener('change', function(e) {
         var file = e.target.files[0];
         if (file) {

@@ -35,8 +35,20 @@
                         </form>
                     </div>
 
+                    <!-- Control de cantidad -->
                     <div class="flex items-center gap-4 mt-3">
-                        <span class="text-sm font-semibold text-gray-700">Cantidad: {{ $item['cantidad'] }}</span>
+                        <form action="/carrito/actualizar" method="POST" class="flex items-center gap-2">
+                            @csrf
+                            <input type="hidden" name="autoparte_id" value="{{ $item['autoparte_id'] }}">
+                            <span class="text-sm font-semibold text-gray-700">Cantidad:</span>
+                            <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                                <button type="submit" name="accion" value="restar"
+                                    class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition text-lg leading-none">−</button>
+                                <span class="px-4 py-1 text-sm font-bold text-gray-800 border-x border-gray-300">{{ $item['cantidad'] }}</span>
+                                <button type="submit" name="accion" value="sumar"
+                                    class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition text-lg leading-none">+</button>
+                            </div>
+                        </form>
                         <span class="text-sm text-gray-500">Subtotal: <strong>${{ number_format($item['precio'] * $item['cantidad'], 2) }}</strong></span>
                     </div>
                 </div>
