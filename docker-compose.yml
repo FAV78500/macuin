@@ -1,25 +1,77 @@
 version: '3.8'
+networks:
+  red_interna:
+    driver: bridge
+  red_frontends:
+    driver: bridge
+
+volumes:
+  postgres_data:
 
 services:
-  # CLIENTE WEB 2: FLASK 
+
+  db:
+    image: postgres:16-alpine
+    networks:
+      - red_interna
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB:       ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    networks:
+      - red_interna     
+      - red_frontends   
+    ports:
+      - "8000:8000"     
+    environment:
+      DATABASE_URL:                postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SECRET_KEY:                  ${JWT_SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-480}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   web-interno:
-    build: .
+    build:
+      context: ./frontend-flask
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend-flask/app:/app/app
+    networks:
+      - red_frontends   
     ports:
       - "5000:5000"
     environment:
-      - API_BASE_URL=http://api_central:8000/api/v1
-      - FLASK_DEBUG=1
-    volumes:
-      - .:/app
+      API_BASE_URL: http://api:8000/api/v1
+      SECRET_KEY:   ${FLASK_SECRET_KEY}
+      FLASK_DEBUG:  ${FLASK_DEBUG:-1}
+    depends_on:
+      - api
+    restart: unless-stopped
 
-  # CLIENTE WEB 1: LARAVEL 
   web-externo:
-    build: 
-      context: ./laravel_app
+    build:
+      context: ./frontend-laravel
       dockerfile: Dockerfile
+    networks:
+      - red_frontends   
     ports:
       - "8080:8000"
-    volumes:
-      - ./laravel_app:/app
     environment:
-      - API_BASE_URL=http://api_central:8000/api/v1
+      API_BASE_URL: http://api:8000/api/v1
+    depends_on:
+      - api
+    restart: unless-stopped

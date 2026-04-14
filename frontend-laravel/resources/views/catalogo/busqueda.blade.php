@@ -1,0 +1,137 @@
+@extends('layouts.app')
+
+@section('title', 'MACUIN - Resultados de Búsqueda')
+
+@section('content')
+
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-macuin-blue">
+            @if($query)
+                Resultados para <span class="text-macuin-red">"{{ $query }}"</span>
+            @else
+                Todos los productos
+            @endif
+        </h1>
+        <p class="text-gray-500 mt-1">{{ count($partes) }} producto(s) encontrado(s)</p>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-8">
+
+        <aside class="w-full lg:w-1/4">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 class="text-lg font-semibold text-macuin-blue mb-4">Buscar</h2>
+                <form action="/buscar" method="GET" class="mb-6">
+                    <input type="text" name="q" value="{{ $query }}"
+                        placeholder="Nombre, marca, número de parte..."
+                        class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-macuin-blue mb-3">
+                    <button type="submit" class="w-full bg-macuin-blue hover:bg-blue-900 text-white font-semibold py-2 rounded-md transition duration-200">
+                        Buscar
+                    </button>
+                </form>
+
+                @if(count($categorias) > 0)
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Por Categoría</h3>
+                <div class="space-y-2">
+                    @foreach($categorias as $cat)
+                    <a href="/buscar?q={{ urlencode($cat['nombre']) }}"
+                        class="block text-sm text-gray-600 hover:text-macuin-red transition py-1">
+                        {{ $cat['nombre'] }}
+                    </a>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+        </aside>
+
+        <section class="w-full lg:w-3/4">
+
+            <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex justify-between items-center mb-6">
+                <span class="text-sm text-gray-500">Mostrando {{ count($partes) }} resultado(s)</span>
+                @if($query)
+                <a href="/buscar" class="text-sm text-macuin-red hover:underline">Limpiar búsqueda</a>
+                @endif
+            </div>
+
+            @if(count($partes) > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                @foreach($partes as $parte)
+                @php $no_disponible = ($parte['stock'] ?? 0) == 0 || !($parte['activo'] ?? true); @endphp
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition group">
+
+                    {{-- Imagen --}}
+                    <a href="/producto/{{ $parte['id'] }}" class="block overflow-hidden bg-gray-50 flex items-center justify-center h-40 relative">
+                        @if(isset($parte['imagen']) && $parte['imagen'])
+                            <img src="{{ $parte['imagen'] }}" alt="{{ $parte['nombre'] }}"
+                                 class="w-full h-full object-cover {{ $no_disponible ? 'blur-sm scale-105' : '' }}">
+                        @else
+                            <svg class="w-16 h-16 {{ $no_disponible ? 'text-gray-300 blur-sm' : 'text-gray-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            </svg>
+                        @endif
+                        @if($no_disponible)
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <span class="bg-white/90 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm tracking-wide">
+                                No disponible
+                            </span>
+                        </div>
+                        @endif
+                    </a>
+
+                    <div class="p-4 flex flex-col flex-grow">
+                        <p class="text-xs text-gray-400 mb-1">
+                            {{ $parte['categoria']['nombre'] ?? '' }}
+                            @if($parte['marca']) · {{ $parte['marca'] }} @endif
+                        </p>
+                        <h3 class="font-semibold text-gray-800 mb-1 leading-tight">
+                            <a href="/producto/{{ $parte['id'] }}" class="hover:text-macuin-blue transition">
+                                {{ $parte['nombre'] }}
+                            </a>
+                        </h3>
+                        @if($parte['numero_parte'])
+                        <p class="text-xs text-gray-500 mb-3">Part #: {{ $parte['numero_parte'] }}</p>
+                        @endif
+                        <div class="text-2xl font-bold text-macuin-red mb-3">
+                            ${{ number_format($parte['precio'], 2) }}
+                        </div>
+                        <div class="mt-auto">
+                            @if($no_disponible)
+                                <button disabled
+                                    class="w-full bg-gray-200 text-gray-400 font-semibold py-2 rounded-md cursor-not-allowed flex items-center justify-center gap-2 text-sm">
+                                    No disponible
+                                </button>
+                            @else
+                                <form action="/carrito/agregar" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="autoparte_id" value="{{ $parte['id'] }}">
+                                    <input type="hidden" name="cantidad" value="1">
+                                    @if(session('token'))
+                                    <button type="submit"
+                                        class="w-full bg-macuin-red hover:bg-red-700 text-white font-semibold py-2 rounded-md transition duration-200 flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                        Agregar
+                                    </button>
+                                    @else
+                                    <a href="/login"
+                                        class="w-full block text-center bg-macuin-blue hover:bg-blue-900 text-white font-semibold py-2 rounded-md transition">
+                                        Iniciar sesión
+                                    </a>
+                                    @endif
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <div class="text-center py-16 text-gray-400">
+                <p class="text-lg">No se encontraron productos para "{{ $query }}".</p>
+                <a href="/catalogo" class="mt-4 inline-block text-macuin-blue hover:underline">Ver catálogo completo</a>
+            </div>
+            @endif
+        </section>
+    </div>
+
+@endsection

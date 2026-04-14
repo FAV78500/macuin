@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h4 style="color: var(--macuin-dark-blue); font-weight: 700;">Gestión de Usuarios</h4>
+    </div>
+    <div class="col text-end">
+        <a href="{{ url_for('usuarios.nuevo') }}" class="btn btn-danger px-4"
+            style="font-weight: 600; border-radius: 6px;">
+            <i class="bi bi-person-plus-fill"></i> Agregar Nuevo Usuario
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm" style="border: 1px solid var(--macuin-border); border-radius: 8px; overflow: hidden;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th
+                            style="background-color: #1e3a8a; color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            ID Usuario</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Nombre</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Email</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Rol</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Estatus</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if usuarios %}
+                    {% for usuario in usuarios %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding-left: 20px; font-weight: 600; color: #555;">{{ usuario.get('id') }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar me-2"
+                                    style="width: 30px; height: 30px; font-size: 0.7rem; background-color: var(--macuin-dark-blue);">
+                                    {{ usuario.get('nombre', 'U')[0]|upper }}
+                                </div>
+                                {{ usuario.get('nombre') }}
+                            </div>
+                        </td>
+                        <td>{{ usuario.get('email') }}</td>
+                        <td>
+                            {% set rol = usuario.get('rol', '') %}
+                            {% if rol == 'admin' %}
+                            <span class="badge bg-danger">Admin</span>
+                            {% elif rol == 'ventas' %}
+                            <span class="badge bg-primary">Ventas</span>
+                            {% elif rol == 'logistica' %}
+                            <span class="badge bg-warning">Logística</span>
+                            {% elif rol == 'almacen' %}
+                            <span class="badge bg-info">Almacén</span>
+                            {% elif rol == 'externo' %}
+                            <span class="badge bg-secondary">Externo</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ rol }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.get('activo', True) %}
+                            <span class="badge"
+                                style="background-color: #e6f4ea; color: #1e8e3e; font-weight: 600;">Activo</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('usuarios.editar', id=usuario.get('id')) }}"
+                                class="btn btn-sm btn-link text-primary p-0 me-2" title="Editar"><i
+                                    class="bi bi-pencil-square" style="font-size: 1.1rem;"></i></a>
+
+                            <form action="{{ url_for('usuarios.eliminar', id=usuario.get('id')) }}" method="POST"
+                                class="d-inline"
+                                onsubmit="return confirm('¿Estás seguro de eliminar este usuario? No se podrá recuperar.');">
+                                <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Eliminar"><i
+                                        class="bi bi-trash" style="font-size: 1.1rem;"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-people d-block mb-2" style="font-size: 2rem;"></i>
+                            No hay usuarios registrados o no se pudo conectar con la API central.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Summary Cards -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100" style="border: 1px solid var(--macuin-border);">
+            <div class="card-body p-4">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #777; margin-bottom: 5px;">Total de Usuarios
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ usuarios|length if
+                    usuarios else 0 }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100" style="border: 1px solid var(--macuin-border);">
+            <div class="card-body p-4">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #777; margin-bottom: 5px;">Usuarios Admin</div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: var(--macuin-red);">
+                    {% set admin_count = namespace(value=0) %}
+                    {% if usuarios %}
+                    {% for u in usuarios %}
+                    {% if u.get('rol') == 'admin' %}{% set admin_count.value = admin_count.value + 1 %}{% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {{ admin_count.value }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100" style="border: 1px solid var(--macuin-border);">
+            <div class="card-body p-4">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #777; margin-bottom: 5px;">Usuarios Inactivos
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; color: #777;">
+                    {% set inactivos = namespace(value=0) %}
+                    {% if usuarios %}
+                    {% for u in usuarios %}
+                    {% if not u.get('activo', True) %}{% set inactivos.value = inactivos.value + 1 %}{% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {{ inactivos.value }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

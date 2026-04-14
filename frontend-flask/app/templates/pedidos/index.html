@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col">
+        <h4 style="color: var(--macuin-dark-blue); font-weight: 700;">Gestión de Pedidos</h4>
+    </div>
+</div>
+
+<div class="card shadow-sm" style="border: 1px solid var(--macuin-border); border-radius: 8px; overflow: hidden;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th
+                            style="background-color: #1e3a8a; color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            ID Pedido</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Cliente</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Fecha</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Total</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Estatus</th>
+                        <th
+                            style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">
+                            Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if pedidos %}
+                    {% for pedido in pedidos %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding-left: 20px; font-weight: 600; color: #555;">#ORD-99{{ pedido.get('id', 0) }}
+                        </td>
+                        <td>{{ pedido.get('usuario', {}).get('nombre', 'Anónimo') }}</td>
+                        <td>{{ pedido.get('fecha_pedido') }}</td>
+                        <td style="font-weight: 600;">${{ "%.2f"|format(pedido.get('subtotal', 0)) }}</td>
+                        <td>
+                            {% set estado = pedido.get('estado', 'RECIBIDO') %}
+                            {% if estado == 'RECIBIDO' %}
+                            <span class="badge"
+                                style="background-color: #fef0db; color: #e37400; font-weight: 600;">Pendiente de
+                                Surtido</span>
+                            {% elif estado == 'SURTIDO' %}
+                            <span class="badge"
+                                style="background-color: #ffeadb; color: #ff7b00; font-weight: 600;">Surtido</span>
+                            {% elif estado == 'ENVIADO' %}
+                            <span class="badge"
+                                style="background-color: #e6f4ea; color: #1e8e3e; font-weight: 600;">Enviado</span>
+                            {% elif estado == 'CANCELADO' %}
+                            <span class="badge bg-dark">Cancelado</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ estado }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{{ url_for('pedidos.estatus', id=pedido.get('id')) }}" method="POST"
+                                class="d-flex align-items-center">
+                                <select class="form-select form-select-sm me-2" name="estado_id" required
+                                    style="width: auto; font-size: 0.8rem; border-radius: 6px; padding: 4px 10px;">
+                                    <option value="1" {% if estado=='RECIBIDO' %}selected{% endif %}>Recibido</option>
+                                    <option value="2" {% if estado=='SURTIDO' %}selected{% endif %}>Surtido</option>
+                                    <option value="3" {% if estado=='ENVIADO' %}selected{% endif %}>Enviado</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-secondary px-2"
+                                    style="border-radius: 6px; font-size: 0.8rem;">
+                                    Actualizar <i class="bi bi-chevron-down ms-1" style="font-size: 0.7rem;"></i>
+                                </button>
+                                <a href="#" class="btn btn-sm text-primary ms-2"><i class="bi bi-eye"></i></a>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No hay pedidos registrados.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination Mockup -->
+        <div class="d-flex justify-content-between align-items-center p-3 border-top"
+            style="background-color: #fafafa;">
+            <small class="text-muted">Mostrando 1-{{ pedidos|length if pedidos else 0 }} de {{ pedidos|length if pedidos
+                else 0 }} pedidos</small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#"
+                            style="background-color: var(--macuin-dark-blue); border-color: var(--macuin-dark-blue);">1</a>
+                    </li>
+                    <li class="page-item"><a class="page-link text-dark" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link text-dark" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link text-dark" href="#"><i
+                                class="bi bi-chevron-right"></i></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Status Counters -->
+<div class="row mt-4">
+    {% set count_recibido = 0 %}
+    {% set count_surtido = 0 %}
+    {% set count_enviado = 0 %}
+
+    {% if pedidos %}
+    {% for p in pedidos %}
+    {% set eid = p.get('estado', 'RECIBIDO') %}
+    {% if eid == 'RECIBIDO' %}{% set count_recibido = count_recibido + 1 %}{% endif %}
+    {% if eid == 'SURTIDO' %}{% set count_surtido = count_surtido + 1 %}{% endif %}
+    {% if eid == 'ENVIADO' %}{% set count_enviado = count_enviado + 1 %}{% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100" style="border: 1px solid #fef0db; border-left: 4px solid #fef0db;">
+            <div class="card-body p-3">
+                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Pendientes de
+                    Surtido</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ count_recibido }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100" style="border: 1px solid #ffeadb; border-left: 4px solid #ffeadb;">
+            <div class="card-body p-3">
+                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Surtidos</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ count_surtido }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100" style="border: 1px solid #dee2e6; border-left: 4px solid #aab7c4;">
+            <div class="card-body p-3">
+                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Enviados</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">{{ count_enviado }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100" style="border: 1px solid #e6f4ea; border-left: 4px solid #e6f4ea;">
+            <div class="card-body p-3">
+                <div style="font-size: 0.75rem; font-weight: 600; color: #777; margin-bottom: 5px;">Entregados</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--macuin-dark-blue);">0</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

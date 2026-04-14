@@ -1,9 +1,0 @@
-from flask import Blueprint, render_template, session
-from app.utils.decorators import login_required, role_required
-
-dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/')
-
-@dashboard_bp.route('/')
-@login_required
-def index():
-    return render_template('dashboard/index.html')
