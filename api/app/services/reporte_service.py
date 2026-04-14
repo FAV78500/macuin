@@ -1,3 +1,4 @@
+import csv
 import io
 import datetime
 from typing import List
@@ -395,7 +396,145 @@ def generar_docx_pedidos(pedidos: List[dict]) -> io.BytesIO:
         doc.add_paragraph(f"Detalle de Empaque:")
         doc.add_paragraph(p['piezas'], style='List Bullet')
         doc.add_paragraph("")
-        
+
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+
+# -- CSV genérico --
+
+def _csv_bytes(rows: List[dict]) -> io.BytesIO:
+    if not rows:
+        return io.BytesIO('Sin datos\n'.encode('utf-8-sig'))
+    out = io.StringIO()
+    writer = csv.DictWriter(out, fieldnames=rows[0].keys())
+    writer.writeheader()
+    writer.writerows(rows)
+    return io.BytesIO(out.getvalue().encode('utf-8-sig'))
+
+
+def generar_csv_ventas(ventas: List[dict]) -> io.BytesIO:
+    return _csv_bytes(ventas)
+
+
+def generar_csv_pedidos(pedidos: List[dict]) -> io.BytesIO:
+    return _csv_bytes(pedidos)
+
+
+def generar_csv_inventario(inventario: List[dict]) -> io.BytesIO:
+    return _csv_bytes(inventario)
+
+
+def generar_csv_clientes(clientes: List[dict]) -> io.BytesIO:
+    return _csv_bytes(clientes)
+
+
+# -- REPORTE DE CLIENTES --
+
+def generar_pdf_clientes(clientes: List[dict], usuario: str) -> io.BytesIO:
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    title_style = ParagraphStyle(
+        'Title', parent=styles['Heading1'],
+        fontName='Helvetica-Bold', fontSize=16,
+        textColor=colors.HexColor('#1E3A8A'), alignment=1,
+    )
+    sub_style = ParagraphStyle(
+        'Sub', parent=styles['Normal'],
+        fontName='Helvetica', fontSize=9,
+        textColor=colors.gray, alignment=1,
+    )
+
+    fecha_hoy = datetime.datetime.now().strftime('%d/%m/%Y')
+    elements.append(Paragraph('MACUIN - Reporte de Clientes', title_style))
+    elements.append(Paragraph(
+        f'Generado por: {usuario}  |  Fecha: {fecha_hoy}', sub_style,
+    ))
+    elements.append(Spacer(1, 0.3 * inch))
+
+    table_data = [['#', 'Cliente', 'Total Pedidos', 'Total Gastado']]
+    for i, c in enumerate(clientes, 1):
+        table_data.append([
+            str(i), c['nombre'], str(c['total_pedidos']),
+            f"${c['total_gastado']:,.2f}",
+        ])
+
+    table = Table(table_data, colWidths=[30, 200, 100, 120])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1E3A8A')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+    ]))
+    elements.append(table)
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
+
+def generar_xlsx_clientes(clientes: List[dict], usuario: str) -> io.BytesIO:
+    buffer = io.BytesIO()
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Clientes'
+
+    header_fill = PatternFill(start_color='1E3A8A', end_color='1E3A8A', fill_type='solid')
+    header_font = Font(color='FFFFFF', bold=True)
+
+    headers = ['#', 'Cliente', 'Total Pedidos', 'Total Gastado']
+    ws.append(headers)
+    for col in range(1, 5):
+        cell = ws.cell(row=1, column=col)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center')
+
+    for i, c in enumerate(clientes, 1):
+        ws.append([i, c['nombre'], c['total_pedidos'], c['total_gastado']])
+        ws.cell(row=i + 1, column=4).number_format = '"$"#,##0.00'
+
+    for col_letter, width in [('A', 6), ('B', 30), ('C', 16), ('D', 18)]:
+        ws.column_dimensions[col_letter].width = width
+
+    wb.save(buffer)
+    buffer.seek(0)
+    return buffer
+
+
+def generar_docx_clientes(clientes: List[dict], usuario: str) -> io.BytesIO:
+    buffer = io.BytesIO()
+    doc = Document()
+    title = doc.add_heading('Reporte de Clientes - MACUIN', 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    p = doc.add_paragraph()
+    p.add_run(f'Generado por: {usuario}\n').bold = True
+    p.add_run(f'Fecha: {datetime.datetime.now().strftime("%d/%m/%Y")}\n')
+    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+    doc.add_paragraph('Ranking por Volumen de Compra', style='Heading 2')
+
+    table = doc.add_table(rows=1, cols=4)
+    table.style = 'Light Grid Accent 1'
+    hdr = table.rows[0].cells
+    hdr[0].text = '#'
+    hdr[1].text = 'Cliente'
+    hdr[2].text = 'Pedidos'
+    hdr[3].text = 'Total Gastado'
+
+    for i, c in enumerate(clientes, 1):
+        row = table.add_row().cells
+        row[0].text = str(i)
+        row[1].text = c['nombre']
+        row[2].text = str(c['total_pedidos'])
+        row[3].text = f"${c['total_gastado']:,.2f}"
+
     doc.save(buffer)
     buffer.seek(0)
     return buffer

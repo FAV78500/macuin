@@ -55,17 +55,25 @@
             @if(count($partes) > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 @foreach($partes as $parte)
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition group
-                    {{ ($parte['stock'] ?? 0) == 0 ? 'opacity-75' : '' }}">
+                @php $no_disponible = ($parte['stock'] ?? 0) == 0 || !($parte['activo'] ?? true); @endphp
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition group">
 
                     {{-- Imagen --}}
                     <a href="/producto/{{ $parte['id'] }}" class="block overflow-hidden bg-gray-50 flex items-center justify-center h-40 relative">
                         @if(isset($parte['imagen']) && $parte['imagen'])
-                            <img src="{{ $parte['imagen'] }}" alt="{{ $parte['nombre'] }}" class="w-full h-full object-cover">
+                            <img src="{{ $parte['imagen'] }}" alt="{{ $parte['nombre'] }}"
+                                 class="w-full h-full object-cover {{ $no_disponible ? 'blur-sm scale-105' : '' }}">
                         @else
-                            <svg class="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-16 h-16 {{ $no_disponible ? 'text-gray-300 blur-sm' : 'text-gray-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                             </svg>
+                        @endif
+                        @if($no_disponible)
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <span class="bg-white/90 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm tracking-wide">
+                                No disponible
+                            </span>
+                        </div>
                         @endif
                     </a>
 
@@ -86,10 +94,10 @@
                             ${{ number_format($parte['precio'], 2) }}
                         </div>
                         <div class="mt-auto">
-                            @if(($parte['stock'] ?? 0) == 0)
+                            @if($no_disponible)
                                 <button disabled
-                                    class="w-full bg-gray-300 text-gray-500 font-semibold py-2 rounded-md cursor-not-allowed flex items-center justify-center gap-2">
-                                    Sin stock
+                                    class="w-full bg-gray-200 text-gray-400 font-semibold py-2 rounded-md cursor-not-allowed flex items-center justify-center gap-2 text-sm">
+                                    No disponible
                                 </button>
                             @else
                                 <form action="/carrito/agregar" method="POST">

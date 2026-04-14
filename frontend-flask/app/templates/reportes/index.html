@@ -1,314 +1,489 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    .kpi-report-card {
-        border: 1px solid var(--macuin-border);
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    .report-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
-
-    .kpi-r-title {
-        font-size: 0.75rem;
-        color: #888;
+    .report-card .card-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f5f9;
+        border-radius: 10px 10px 0 0;
+        padding: 14px 18px;
+    }
+    .report-card .card-footer {
+        background: #fafafa;
+        border-top: 1px solid #f1f5f9;
+        border-radius: 0 0 10px 10px;
+        padding: 12px 18px;
+    }
+    .kpi-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .kpi-label {
+        font-size: 0.72rem;
+        color: #8a97a8;
         font-weight: 600;
-        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: .03em;
     }
-
-    .kpi-r-value {
-        font-size: 1.6rem;
+    .kpi-value {
+        font-size: 1.55rem;
         font-weight: 800;
-        color: var(--macuin-dark-blue);
+        color: #1e3a8a;
+        line-height: 1.1;
     }
-
-    .kpi-r-icon {
-        font-size: 1.2rem;
+    .kpi-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
+        font-size: 1.1rem;
+        flex-shrink: 0;
     }
-
-    .report-card {
-        border: 1px solid var(--macuin-border);
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-        transition: transform 0.2s, box-shadow 0.2s;
+    .filter-panel {
+        background: #f8fafc;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 10px 18px;
     }
-
-    .report-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    .filter-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 2px;
     }
-
-    .download-btn {
-        font-size: 0.75rem;
-        padding: 4px 8px;
-        border-radius: 4px;
+    .preview-table {
+        font-size: 0.8rem;
+        margin-bottom: 0;
+    }
+    .preview-table thead th {
+        background-color: #1e3a8a !important;
+        color: #fff !important;
+        font-weight: 600;
+        font-size: 0.72rem;
+        padding: 7px 12px;
+        border: none;
+        white-space: nowrap;
+    }
+    .preview-table tbody td {
+        padding: 6px 12px;
+        border-color: #f1f5f9;
+        vertical-align: middle;
+    }
+    .preview-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    .badge-recibido  { background-color: #dbeafe; color: #1d4ed8; }
+    .badge-surtido   { background-color: #fef9c3; color: #a16207; }
+    .badge-enviado   { background-color: #dcfce7; color: #166534; }
+    .badge-cancelado { background-color: #fee2e2; color: #b91c1c; }
+    .fmt-btn {
+        font-size: 0.73rem;
+        padding: 4px 9px;
+        border-radius: 5px;
         font-weight: 500;
+        text-decoration: none;
+    }
+    .empty-state {
+        color: #b0bec5;
+        font-size: 0.82rem;
+        padding: 24px 0;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="row align-items-center mb-4">
-    <div class="col">
-        <h4 style="color: var(--macuin-dark-blue); font-weight: 700; margin-bottom: 0;">Reportes y Análisis de Ventas
-        </h4>
-    </div>
-    <div class="col text-end">
-        <button class="btn btn-sm btn-outline-secondary px-3 py-1"
-            style="border-radius: 6px; font-weight: 600; font-size: 0.8rem; background-color: white;">
-            Periodo: Últimos 30 días <i class="bi bi-chevron-down ms-2"></i>
-        </button>
+
+<!-- ── Page Header ──────────────────────────────────────── -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 style="color:#1e3a8a; font-weight:700; margin-bottom:2px;">Reportes</h4>
+        <p class="text-muted mb-0" style="font-size:0.82rem;">Información operacional y descarga de reportes</p>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-md-4 mb-3 mb-md-0">
-        <div class="card kpi-report-card h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="kpi-r-title">Ventas Totales</div>
-                    <div class="kpi-r-value">$450,500</div>
+<!-- ── KPI Strip ───────────────────────────────────────── -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card kpi-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="kpi-icon" style="background:#eff6ff; color:#1e3a8a;">
+                    <i class="bi bi-graph-up-arrow"></i>
                 </div>
-                <div class="kpi-r-icon" style="color: #10B981; background-color: #e6f4ea;">
-                    <i class="bi bi-graph-up"></i>
+                <div>
+                    <div class="kpi-label">Ventas totales</div>
+                    <div class="kpi-value">${{ "{:,.0f}".format(ventas_total) }}</div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4 mb-3 mb-md-0">
-        <div class="card kpi-report-card h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="kpi-r-title">Pedidos Completados</div>
-                    <div class="kpi-r-value">128</div>
-                </div>
-                <div class="kpi-r-icon" style="color: #3b82f6; background-color: #dbeafe;">
-                    <i class="bi bi-check-circle"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card kpi-report-card h-100 p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="kpi-r-title">Ticket Promedio</div>
-                    <div class="kpi-r-value">$3,520</div>
-                </div>
-                <div class="kpi-r-icon" style="color: #f59e0b; background-color: #fef3c7;">
+    <div class="col-6 col-lg-3">
+        <div class="card kpi-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="kpi-icon" style="background:#f0fdf4; color:#16a34a;">
                     <i class="bi bi-receipt"></i>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Tendencia de Ventas -->
-    <div class="col-md-8 mb-4">
-        <div class="card kpi-report-card h-100">
-            <div class="card-header bg-white" style="border-bottom: none; padding: 20px 20px 0 20px;">
-                <h6 style="color: var(--macuin-dark-blue); font-weight: 700; font-size: 0.9rem;">Tendencia de Ventas
-                    (Ene - Feb)</h6>
-            </div>
-            <div class="card-body">
-                <div style="position: relative; height: 250px; width: 100%;">
-                    <canvas id="tendenciaChart"></canvas>
+                <div>
+                    <div class="kpi-label">Total pedidos</div>
+                    <div class="kpi-value">{{ total_pedidos }}</div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Ventas por Categoría -->
-    <div class="col-md-4 mb-4">
-        <div class="card kpi-report-card h-100">
-            <div class="card-header bg-white" style="border-bottom: none; padding: 20px 20px 0 20px;">
-                <h6 style="color: var(--macuin-dark-blue); font-weight: 700; font-size: 0.9rem;">Ventas por Categoría
-                </h6>
-            </div>
-            <div class="card-body d-flex justify-content-center align-items-center position-relative">
-                <div style="position: relative; height: 200px; width: 100%;">
-                    <canvas id="categoriaChart"></canvas>
+    <div class="col-6 col-lg-3">
+        <div class="card kpi-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="kpi-icon" style="background:#fefce8; color:#ca8a04;">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div>
+                    <div class="kpi-label">Items en inventario</div>
+                    <div class="kpi-value">{{ total_items }}</div>
                 </div>
             </div>
-            <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
-                <span class="badge rounded-pill mx-1"
-                    style="background-color: transparent; color: #555; border: none; font-weight: 500; font-size: 0.75rem;">
-                    <i class="bi bi-circle-fill" style="color: #1E3A8A; font-size: 0.5rem; vertical-align: middle;"></i>
-                    Frenos
-                </span>
-                <span class="badge rounded-pill mx-1"
-                    style="background-color: transparent; color: #555; border: none; font-weight: 500; font-size: 0.75rem;">
-                    <i class="bi bi-circle-fill" style="color: #EF4444; font-size: 0.5rem; vertical-align: middle;"></i>
-                    Motor
-                </span>
-                <span class="badge rounded-pill mx-1"
-                    style="background-color: transparent; color: #555; border: none; font-weight: 500; font-size: 0.75rem;">
-                    <i class="bi bi-circle-fill" style="color: #F59E0B; font-size: 0.5rem; vertical-align: middle;"></i>
-                    Suspensión
-                </span>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card kpi-card p-3 h-100">
+            <div class="d-flex align-items-center gap-3">
+                <div class="kpi-icon" style="background:#fdf2f8; color:#a21caf;">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <div class="kpi-label">Clientes activos</div>
+                    <div class="kpi-value">{{ total_clientes }}</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Reportes Descargables -->
-<div class="row mt-4">
-    <div class="col-12">
-        <h6 style="color: var(--macuin-dark-blue); font-weight: 700; margin-bottom: 20px;">Reportes Disponibles</h6>
-    </div>
-</div>
+<!-- ── Report Cards ────────────────────────────────────── -->
+<div class="row g-4">
 
-<div class="row">
-    <!-- Reporte 1: Ventas por Periodo -->
-    <div class="col-md-3 mb-3">
+    <!-- ── Ventas ──────────────────────────────────────── -->
+    <div class="col-12 col-xl-6">
         <div class="card report-card h-100">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-file-earmark-bar-graph" style="color: var(--macuin-dark-blue); font-size: 1.5rem; margin-right: 10px;"></i>
-                    <div>
-                        <h6 style="font-weight: 600; margin-bottom: 0;">Ventas por Periodo</h6>
-                        <small style="color: #777;">Análisis mensual de ventas</small>
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-bar-graph" style="color:#1e3a8a; font-size:1.2rem;"></i>
+                <div class="flex-grow-1">
+                    <span style="font-weight:700; font-size:0.9rem; color:#1e3a8a;">Ventas por Período</span>
+                    <small class="text-muted ms-2">Resumen mensual</small>
+                </div>
+            </div>
+
+            {% if rol == 'admin' %}
+            <div class="filter-panel">
+                <div class="row g-2 align-items-end">
+                    <div class="col">
+                        <div class="filter-label">Desde</div>
+                        <input type="date" id="v-desde" class="form-control form-control-sm"
+                               onchange="updateLinks('ventas')">
+                    </div>
+                    <div class="col">
+                        <div class="filter-label">Hasta</div>
+                        <input type="date" id="v-hasta" class="form-control form-control-sm"
+                               onchange="updateLinks('ventas')">
                     </div>
                 </div>
-                <div class="mt-3">
-                    <a href="{{ url_for('reportes.descargar_ventas_periodo', formato='pdf') }}" class="btn btn-sm btn-outline-primary download-btn me-1">
-                        <i class="bi bi-file-earmark-pdf"></i> PDF
-                    </a>
-                    <a href="{{ url_for('reportes.descargar_ventas_periodo', formato='xlsx') }}" class="btn btn-sm btn-outline-success download-btn me-1">
-                        <i class="bi bi-file-earmark-excel"></i> XLSX
-                    </a>
-                    <a href="{{ url_for('reportes.descargar_ventas_periodo', formato='docx') }}" class="btn btn-sm btn-outline-secondary download-btn">
-                        <i class="bi bi-file-earmark-word"></i> DOCX
-                    </a>
+            </div>
+            {% endif %}
+
+            <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+                {% if ventas_preview %}
+                <table class="table preview-table">
+                    <thead>
+                        <tr>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Mes</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Total ventas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for label, total in ventas_preview %}
+                        <tr>
+                            <td>{{ label }}</td>
+                            <td class="fw-semibold">${{ "{:,.2f}".format(total) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center empty-state">
+                    <i class="bi bi-inbox d-block mb-1" style="font-size:1.5rem;"></i>
+                    Sin datos de ventas
                 </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer d-flex align-items-center gap-2 flex-wrap">
+                <span class="text-muted me-1" style="font-size:0.72rem;">Descargar:</span>
+                <a id="ventas-pdf"  href="/reportes/descargar-ventas/pdf"  class="btn btn-outline-danger  fmt-btn"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+                <a id="ventas-xlsx" href="/reportes/descargar-ventas/xlsx" class="btn btn-outline-success fmt-btn"><i class="bi bi-file-earmark-excel me-1"></i>XLSX</a>
+                <a id="ventas-docx" href="/reportes/descargar-ventas/docx" class="btn btn-outline-secondary fmt-btn"><i class="bi bi-file-earmark-word me-1"></i>DOCX</a>
+                <a id="ventas-csv"  href="/reportes/descargar-ventas/csv"  class="btn btn-outline-info fmt-btn"><i class="bi bi-filetype-csv me-1"></i>CSV</a>
             </div>
         </div>
     </div>
 
-    <!-- Reporte 2: Inventario Actual -->
-    <div class="col-md-3 mb-3">
+    <!-- ── Pedidos ─────────────────────────────────────── -->
+    <div class="col-12 col-xl-6">
         <div class="card report-card h-100">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-box-seam" style="color: #10B981; font-size: 1.5rem; margin-right: 10px;"></i>
-                    <div>
-                        <h6 style="font-weight: 600; margin-bottom: 0;">Inventario</h6>
-                        <small style="color: #777;">Estado actual de stock</small>
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-card-checklist" style="color:#0ea5e9; font-size:1.2rem;"></i>
+                <div class="flex-grow-1">
+                    <span style="font-weight:700; font-size:0.9rem; color:#0369a1;">Pedidos</span>
+                    <small class="text-muted ms-2">Por estado y fecha</small>
+                </div>
+            </div>
+
+            {% if rol == 'admin' %}
+            <div class="filter-panel">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <div class="filter-label">Estado</div>
+                        <select id="p-estado" class="form-select form-select-sm"
+                                onchange="updateLinks('pedidos')">
+                            <option value="">Todos</option>
+                            <option value="RECIBIDO">Recibido</option>
+                            <option value="SURTIDO">Surtido</option>
+                            <option value="ENVIADO">Enviado</option>
+                            <option value="CANCELADO">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <div class="filter-label">Desde</div>
+                        <input type="date" id="p-desde" class="form-control form-control-sm"
+                               onchange="updateLinks('pedidos')">
+                    </div>
+                    <div class="col">
+                        <div class="filter-label">Hasta</div>
+                        <input type="date" id="p-hasta" class="form-control form-control-sm"
+                               onchange="updateLinks('pedidos')">
                     </div>
                 </div>
-                <div class="mt-3">
-                    <a href="{{ url_for('reportes.descargar_inventario', formato='pdf') }}" class="btn btn-sm btn-outline-primary download-btn me-1">
-                        <i class="bi bi-file-earmark-pdf"></i> PDF
-                    </a>
-                    <a href="{{ url_for('reportes.descargar_inventario', formato='xlsx') }}" class="btn btn-sm btn-outline-success download-btn me-1">
-                        <i class="bi bi-file-earmark-excel"></i> XLSX
-                    </a>
-                    <a href="{{ url_for('reportes.descargar_inventario', formato='docx') }}" class="btn btn-sm btn-outline-secondary download-btn">
-                        <i class="bi bi-file-earmark-word"></i> DOCX
-                    </a>
+            </div>
+            {% endif %}
+
+            <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+                {% if pedidos_preview %}
+                <table class="table preview-table">
+                    <thead>
+                        <tr>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">#</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Cliente</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Fecha</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Estado</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in pedidos_preview %}
+                        {% set est = p.get('estado', '') | upper %}
+                        <tr>
+                            <td class="text-muted">{{ p.get('id') }}</td>
+                            <td>{{ p.get('cliente', p.get('usuario', {}).get('nombre', '—')) if p.get('cliente') else p.get('usuario', {}).get('nombre', '—') }}</td>
+                            <td>{{ p.get('fecha', p.get('fecha_pedido', '—'))[:10] }}</td>
+                            <td>
+                                <span class="badge rounded-pill
+                                    {% if est == 'RECIBIDO' %}badge-recibido
+                                    {% elif est == 'SURTIDO' %}badge-surtido
+                                    {% elif est == 'ENVIADO' %}badge-enviado
+                                    {% else %}badge-cancelado{% endif %}"
+                                    style="font-size:0.68rem;">
+                                    {{ est }}
+                                </span>
+                            </td>
+                            <td class="fw-semibold">${{ "{:,.2f}".format(p.get('total', 0)) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center empty-state">
+                    <i class="bi bi-inbox d-block mb-1" style="font-size:1.5rem;"></i>
+                    Sin pedidos registrados
                 </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer d-flex align-items-center gap-2 flex-wrap">
+                <span class="text-muted me-1" style="font-size:0.72rem;">Descargar:</span>
+                <a id="pedidos-pdf"  href="/reportes/descargar-pedidos/pdf"  class="btn btn-outline-danger  fmt-btn"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+                <a id="pedidos-xlsx" href="/reportes/descargar-pedidos/xlsx" class="btn btn-outline-success fmt-btn"><i class="bi bi-file-earmark-excel me-1"></i>XLSX</a>
+                <a id="pedidos-docx" href="/reportes/descargar-pedidos/docx" class="btn btn-outline-secondary fmt-btn"><i class="bi bi-file-earmark-word me-1"></i>DOCX</a>
+                <a id="pedidos-csv"  href="/reportes/descargar-pedidos/csv"  class="btn btn-outline-info fmt-btn"><i class="bi bi-filetype-csv me-1"></i>CSV</a>
             </div>
         </div>
     </div>
 
-    <!-- Reporte 4: Pedidos por Estatus -->
-    <div class="col-md-3 mb-3">
+    <!-- ── Inventario ─────────────────────────────────── -->
+    <div class="col-12 col-xl-6">
         <div class="card report-card h-100">
-            <div class="card-body p-3">
-                <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-receipt" style="color: #3b82f6; font-size: 1.5rem; margin-right: 10px;"></i>
-                    <div>
-                        <h6 style="font-weight: 600; margin-bottom: 0;">Pedidos</h6>
-                        <small style="color: #777;">Por estatus y fecha</small>
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-box-seam" style="color:#16a34a; font-size:1.2rem;"></i>
+                <div class="flex-grow-1">
+                    <span style="font-weight:700; font-size:0.9rem; color:#166534;">Inventario</span>
+                    <small class="text-muted ms-2">Estado actual de stock</small>
+                </div>
+                {% if alertas > 0 %}
+                <span class="badge rounded-pill" style="background:#fee2e2; color:#b91c1c; font-size:0.7rem;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>{{ alertas }} alerta{{ 's' if alertas > 1 else '' }}
+                </span>
+                {% endif %}
+            </div>
+
+            {% if rol == 'admin' %}
+            <div class="filter-panel">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <div class="filter-label">Filtrar stock</div>
+                        <select id="inv-filtro" class="form-select form-select-sm"
+                                onchange="updateLinks('inventario')">
+                            <option value="">Todos</option>
+                            <option value="bajo">Stock bajo</option>
+                            <option value="agotado">Agotado</option>
+                        </select>
                     </div>
                 </div>
-                <div class="mt-3">
-                    <a href="{{ url_for('reportes.descargar_pedidos_estatus', formato='pdf') }}" class="btn btn-sm btn-outline-primary download-btn me-1">
-                        <i class="bi bi-file-earmark-pdf"></i> PDF
-                    </a>
-                    <a href="{{ url_for('reportes.descargar_pedidos_estatus', formato='xlsx') }}" class="btn btn-sm btn-outline-success download-btn me-1">
-                        <i class="bi bi-file-earmark-excel"></i> XLSX
-                    </a>
-                    <a href="{{ url_for('reportes.descargar_pedidos_estatus', formato='docx') }}" class="btn btn-sm btn-outline-secondary download-btn">
-                        <i class="bi bi-file-earmark-word"></i> DOCX
-                    </a>
+            </div>
+            {% endif %}
+
+            <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+                {% if inventario_preview %}
+                <table class="table preview-table">
+                    <thead>
+                        <tr>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Descripción</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Marca</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important; text-align:center;">Stock</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important; text-align:center;">Mínimo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inv in inventario_preview %}
+                        {% set auto = inv.get('autoparte', {}) %}
+                        {% set bajo = inv.get('stock_actual', 0) <= inv.get('stock_minimo', 0) %}
+                        <tr {% if bajo %}style="background:#fffbeb;"{% endif %}>
+                            <td>{{ auto.get('nombre', '—') }}</td>
+                            <td class="text-muted">{{ auto.get('marca', '—') or '—' }}</td>
+                            <td class="text-center fw-semibold {% if inv.get('stock_actual', 0) == 0 %}text-danger{% elif bajo %}text-warning{% endif %}">
+                                {{ inv.get('stock_actual', 0) }}
+                            </td>
+                            <td class="text-center text-muted">{{ inv.get('stock_minimo', 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center empty-state">
+                    <i class="bi bi-inbox d-block mb-1" style="font-size:1.5rem;"></i>
+                    Sin registros de inventario
                 </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer d-flex align-items-center gap-2 flex-wrap">
+                <span class="text-muted me-1" style="font-size:0.72rem;">Descargar:</span>
+                <a id="inventario-pdf"  href="/reportes/descargar-inventario/pdf"  class="btn btn-outline-danger  fmt-btn"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+                <a id="inventario-xlsx" href="/reportes/descargar-inventario/xlsx" class="btn btn-outline-success fmt-btn"><i class="bi bi-file-earmark-excel me-1"></i>XLSX</a>
+                <a id="inventario-docx" href="/reportes/descargar-inventario/docx" class="btn btn-outline-secondary fmt-btn"><i class="bi bi-file-earmark-word me-1"></i>DOCX</a>
+                <a id="inventario-csv"  href="/reportes/descargar-inventario/csv"  class="btn btn-outline-info fmt-btn"><i class="bi bi-filetype-csv me-1"></i>CSV</a>
             </div>
         </div>
     </div>
+
+    <!-- ── Clientes ────────────────────────────────────── -->
+    <div class="col-12 col-xl-6">
+        <div class="card report-card h-100">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-people" style="color:#a21caf; font-size:1.2rem;"></i>
+                <div class="flex-grow-1">
+                    <span style="font-weight:700; font-size:0.9rem; color:#7e22ce;">Clientes</span>
+                    <small class="text-muted ms-2">Compradores frecuentes</small>
+                </div>
+            </div>
+
+            <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                {% if clientes_preview %}
+                <table class="table preview-table">
+                    <thead>
+                        <tr>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Cliente</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important; text-align:center;">Pedidos</th>
+                            <th style="background-color:#1e3a8a !important; color:#fff !important;">Total comprado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in clientes_preview %}
+                        <tr>
+                            <td class="fw-semibold">{{ c.get('nombre', '—') }}</td>
+                            <td class="text-center">{{ c.get('total_pedidos', 0) }}</td>
+                            <td>${{ "{:,.2f}".format(c.get('total_gastado', 0)) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center empty-state">
+                    <i class="bi bi-inbox d-block mb-1" style="font-size:1.5rem;"></i>
+                    Sin clientes con pedidos registrados
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer d-flex align-items-center gap-2 flex-wrap">
+                <span class="text-muted me-1" style="font-size:0.72rem;">Descargar:</span>
+                <a href="/reportes/descargar-clientes/pdf"  class="btn btn-outline-danger  fmt-btn"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+                <a href="/reportes/descargar-clientes/xlsx" class="btn btn-outline-success fmt-btn"><i class="bi bi-file-earmark-excel me-1"></i>XLSX</a>
+                <a href="/reportes/descargar-clientes/docx" class="btn btn-outline-secondary fmt-btn"><i class="bi bi-file-earmark-word me-1"></i>DOCX</a>
+                <a href="/reportes/descargar-clientes/csv"  class="btn btn-outline-info fmt-btn"><i class="bi bi-filetype-csv me-1"></i>CSV</a>
+            </div>
+        </div>
+    </div>
+
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Line Chart for Tendencia de Ventas
-        const tendCtx = document.getElementById('tendenciaChart').getContext('2d');
-        new Chart(tendCtx, {
-            type: 'line',
-            data: {
-                labels: ['01', '05', '10', '15', '20', '25', '28', '02', '05', '10', '15'],
-                datasets: [{
-                    label: 'Ventas',
-                    data: [4000, 3000, 5000, 2800, 2000, 2200, 3500, 4200, 4800, 5800, 6500],
-                    borderColor: '#1E3A8A', // Dark blue
-                    backgroundColor: 'rgba(30, 58, 138, 0.05)',
-                    borderWidth: 2,
-                    tension: 0.4, // Smooth curve
-                    pointRadius: 2,
-                    pointBackgroundColor: '#1E3A8A'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { borderDash: [2, 4], color: '#f0f0f0' },
-                        ticks: {
-                            callback: function (value) {
-                                return '$' + value;
-                            },
-                            font: { size: 10 }
-                        }
-                    },
-                    x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-                }
-            }
-        });
+const BASE = {
+    ventas:     '/reportes/descargar-ventas',
+    pedidos:    '/reportes/descargar-pedidos',
+    inventario: '/reportes/descargar-inventario',
+};
+const FMTS = ['pdf', 'xlsx', 'docx', 'csv'];
 
-        // Doughnut Chart for Categorías
-        const catCtx = document.getElementById('categoriaChart').getContext('2d');
-        new Chart(catCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Frenos', 'Motor', 'Suspensión'],
-                datasets: [{
-                    data: [45, 30, 25],
-                    backgroundColor: ['#1E3A8A', '#EF4444', '#F59E0B'], // Blue, Red, Yellow/Orange
-                    borderWidth: 0,
-                    cutout: '65%'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
+function updateLinks(report) {
+    const params = new URLSearchParams();
+
+    if (report === 'ventas') {
+        const desde = document.getElementById('v-desde')?.value;
+        const hasta = document.getElementById('v-hasta')?.value;
+        if (desde) params.set('fecha_desde', desde);
+        if (hasta) params.set('fecha_hasta', hasta);
+    } else if (report === 'pedidos') {
+        const estado = document.getElementById('p-estado')?.value;
+        const desde  = document.getElementById('p-desde')?.value;
+        const hasta  = document.getElementById('p-hasta')?.value;
+        if (estado) params.set('estado', estado);
+        if (desde)  params.set('fecha_desde', desde);
+        if (hasta)  params.set('fecha_hasta', hasta);
+    } else if (report === 'inventario') {
+        const filtro = document.getElementById('inv-filtro')?.value;
+        if (filtro) params.set('stock_filtro', filtro);
+    }
+
+    const qs = params.toString() ? '?' + params.toString() : '';
+    FMTS.forEach(fmt => {
+        const el = document.getElementById(`${report}-${fmt}`);
+        if (el) el.href = `${BASE[report]}/${fmt}${qs}`;
     });
+}
 </script>
 {% endblock %}

@@ -24,6 +24,6 @@ class Autoparte(Base):
                                             onupdate=datetime.utcnow
                                           )
 
-    categoria:       Mapped['Categoria']          = relationship('Categoria',      back_populates='autopartes')
-    inventario:      Mapped[Optional['Inventario']] = relationship('Inventario',   back_populates='autoparte', uselist=False)
-    detalles_pedido: Mapped[List['DetallePedido']]  = relationship('DetallePedido', back_populates='autoparte')
+    categoria:       Mapped['Categoria']          = relationship('Categoria',       back_populates='autopartes')
+    inventario:      Mapped[Optional['Inventario']] = relationship('Inventario',    back_populates='autoparte', uselist=False, cascade='all, delete-orphan')
+    detalles_pedido: Mapped[List['DetallePedido']]  = relationship('DetallePedido', back_populates='autoparte', cascade='all, delete-orphan')

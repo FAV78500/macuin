@@ -17,16 +17,16 @@
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" style="width: 100%;">
-                <thead style="background-color: var(--macuin-dark-blue);">
+                <thead>
                     <tr>
-                        <th style="color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">ID</th>
-                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Nombre</th>
-                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Marca</th>
-                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Modelo Compatible</th>
-                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Stock</th>
-                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Precio</th>
-                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Estatus</th>
-                        <th style="color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Acciones</th>
+                        <th style="background-color: #1e3a8a; color: white; padding: 15px 20px; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">ID</th>
+                        <th style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Nombre</th>
+                        <th style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Marca</th>
+                        <th style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Modelo Compatible</th>
+                        <th style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Stock</th>
+                        <th style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Precio</th>
+                        <th style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Estatus</th>
+                        <th style="background-color: #1e3a8a; color: white; font-weight: 600; border: none; font-size: 0.85rem; text-transform:none;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,10 +51,10 @@
                         <td>
                             <a href="{{ url_for('autopartes.editar', id=inv.get('autoparte', {}).get('id')) }}"
                                 class="btn btn-sm btn-link text-primary p-0 me-2"><i class="bi bi-pencil-square" style="font-size: 1.1rem;"></i></a>
-                            <form action="{{ url_for('autopartes.eliminar', id=inv.get('autoparte', {}).get('id')) }}" method="POST"
-                                class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar esta autoparte?');">
-                                <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i class="bi bi-trash" style="font-size: 1.1rem;"></i></button>
-                            </form>
+                            <button type="button" class="btn btn-sm btn-link text-danger p-0"
+                                onclick="confirmarEliminar({{ inv.get('autoparte', {}).get('id') }}, '{{ inv.get('autoparte', {}).get('nombre', '')|replace("'", "\\'") }}')">
+                                <i class="bi bi-trash" style="font-size: 1.1rem;"></i>
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -68,4 +68,38 @@
         </div>
     </div>
 </div>
+{# Modal de confirmación de eliminación #}
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 10px; border: none;">
+            <div class="modal-header" style="background-color: #fff1f0; border-bottom: 1px solid #ffd5d5;">
+                <h5 class="modal-title" style="color: #c62828; font-weight: 700;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Eliminar Autoparte
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="mb-1" style="font-size: 0.95rem;">¿Estás seguro de que deseas eliminar la autoparte:</p>
+                <p id="modal-parte-nombre" class="fw-bold text-danger mb-0" style="font-size: 1rem;"></p>
+                <p class="text-muted mt-3 mb-0" style="font-size: 0.85rem;">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #f0f0f0;">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal"
+                    style="border-radius: 6px; font-weight: 600;">Cancelar</button>
+                <form id="form-eliminar" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger px-4"
+                        style="border-radius: 6px; font-weight: 600;">Sí, eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmarEliminar(id, nombre) {
+        document.getElementById('modal-parte-nombre').textContent = nombre;
+        document.getElementById('form-eliminar').action = '/autopartes/eliminar/' + id;
+        new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+    }
+</script>
 {% endblock %}

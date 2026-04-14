@@ -68,9 +68,9 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label text-muted" style="font-size: 0.85rem; font-weight: 600;">Stock Inicial
-                            / Cantidad</label>
-                        <input type="number" class="form-control" placeholder="150"
+                        <label for="stock_inicial" class="form-label text-muted" style="font-size: 0.85rem; font-weight: 600;">Stock</label>
+                        <input type="number" class="form-control" id="stock_inicial" name="stock_inicial"
+                            value="{{ parte.get('stock', '') }}" placeholder="150" min="0"
                             style="font-size: 0.9rem; padding: 10px;">
                     </div>
 

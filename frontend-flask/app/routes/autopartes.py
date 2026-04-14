@@ -34,8 +34,18 @@ def nuevo():
             'activo':       bool(request.form.get('activo')),
             'imagen':       request.form.get('imagen_base64') or None,
         }
-        api_client.post('/autopartes', data=data)
-        flash('Autoparte creada', 'success')
+        result = api_client.post('/autopartes', data=data)
+        if isinstance(result, dict) and 'error' in result:
+            flash(f'Error al crear autoparte: {result.get("error")}', 'danger')
+            return render_template('autopartes/form.html', parte=request.form, categorias=_get_categorias())
+        stock_inicial = request.form.get('stock_inicial', '').strip()
+        if stock_inicial and int(stock_inicial) > 0 and isinstance(result, dict) and result.get('id'):
+            inventarios = api_client.get('/inventarios')
+            if isinstance(inventarios, list):
+                inv = next((i for i in inventarios if i.get('autoparte_id') == result['id']), None)
+                if inv:
+                    api_client.patch(f'/inventarios/{inv["id"]}', data={'stock_actual': int(stock_inicial)})
+        flash('Autoparte creada correctamente', 'success')
         return redirect(url_for('autopartes.index'))
     return render_template('autopartes/form.html', parte={}, categorias=_get_categorias())
 
@@ -54,8 +64,18 @@ def editar(id):
             'activo':       bool(request.form.get('activo')),
             'imagen':       request.form.get('imagen_base64') or None,
         }
-        api_client.put(f'/autopartes/{id}', data=data)
-        flash('Autoparte actualizada', 'success')
+        result = api_client.put(f'/autopartes/{id}', data=data)
+        if isinstance(result, dict) and 'error' in result:
+            flash(f'Error al actualizar autoparte: {result.get("error")}', 'danger')
+        else:
+            stock_nuevo = request.form.get('stock_inicial', '').strip()
+            if stock_nuevo != '':
+                inventarios = api_client.get('/inventarios')
+                if isinstance(inventarios, list):
+                    inv = next((i for i in inventarios if i.get('autoparte_id') == id), None)
+                    if inv:
+                        api_client.patch(f'/inventarios/{inv["id"]}', data={'stock_actual': int(stock_nuevo)})
+            flash('Autoparte actualizada correctamente', 'success')
         return redirect(url_for('autopartes.index'))
     parte = api_client.get(f'/autopartes/{id}')
     if isinstance(parte, dict) and 'error' in parte:
@@ -67,6 +87,9 @@ def editar(id):
 @login_required
 @role_required('admin')
 def eliminar(id):
-    api_client.delete(f'/autopartes/{id}')
-    flash('Autoparte eliminada', 'success')
+    result = api_client.delete(f'/autopartes/{id}')
+    if isinstance(result, dict) and 'error' in result:
+        flash(f'No se pudo eliminar la autoparte: {result["error"]}', 'danger')
+    else:
+        flash('Autoparte eliminada correctamente', 'success')
     return redirect(url_for('autopartes.index'))

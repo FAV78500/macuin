@@ -32,7 +32,7 @@ class APIClient:
 
     def get(self, endpoint, params=None):
         try:
-            response = requests.get(f"{self.base_url}{endpoint}", headers=self._get_headers(), params=params, timeout=2)
+            response = requests.get(f"{self.base_url}{endpoint}", headers=self._get_headers(), params=params, timeout=8)
             response.raise_for_status()
             return response.json()
         except (requests.exceptions.RequestException, requests.exceptions.ConnectionError) as e:
@@ -40,25 +40,33 @@ class APIClient:
 
     def post(self, endpoint, data=None):
         try:
-            response = requests.post(f"{self.base_url}{endpoint}", headers=self._get_headers(), json=data, timeout=2)
+            response = requests.post(f"{self.base_url}{endpoint}", headers=self._get_headers(), json=data, timeout=15)
             response.raise_for_status()
             return response.json()
         except (requests.exceptions.RequestException, requests.exceptions.ConnectionError) as e:
             return self._mock_response('POST', endpoint, data)
-            
+
     def put(self, endpoint, data=None):
         try:
-            response = requests.put(f"{self.base_url}{endpoint}", headers=self._get_headers(), json=data, timeout=2)
+            response = requests.put(f"{self.base_url}{endpoint}", headers=self._get_headers(), json=data, timeout=15)
             response.raise_for_status()
             return response.json()
         except (requests.exceptions.RequestException, requests.exceptions.ConnectionError) as e:
             return self._mock_response('PUT', endpoint, data)
-            
+
     def delete(self, endpoint):
         try:
-            response = requests.delete(f"{self.base_url}{endpoint}", headers=self._get_headers(), timeout=2)
+            response = requests.delete(f"{self.base_url}{endpoint}", headers=self._get_headers(), timeout=5)
             response.raise_for_status()
+            if response.status_code == 204 or not response.content:
+                return {'ok': True}
             return response.json()
+        except requests.exceptions.HTTPError as e:
+            try:
+                detail = e.response.json().get('detail', str(e))
+            except Exception:
+                detail = str(e)
+            return {'error': detail}
         except (requests.exceptions.RequestException, requests.exceptions.ConnectionError) as e:
             return self._mock_response('DELETE', endpoint)
             

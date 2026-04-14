@@ -37,11 +37,7 @@ class CatalogoController extends Controller
             ];
         }, $categorias);
 
-        $partes = array_values(array_filter($partes, fn($p) => $p['activo'] ?? true));
-
         $partes = array_map(function ($p) {
-            $cat = $p['categoria']['nombre'] ?? '';
-            // $p['imagen'] = $this->imagenes[$cat] ?? 'default.jpg';
             return $p;
         }, $partes);
 
@@ -69,8 +65,6 @@ class CatalogoController extends Controller
 
         if (!is_array($categorias) || isset($categorias['error'])) $categorias = [];
         if (!is_array($partes)     || isset($partes['error']))     $partes     = [];
-
-        $partes = array_values(array_filter($partes, fn($p) => $p['activo'] ?? true));
 
         if ($query !== '') {
             $partes = array_values(array_filter($partes, function ($p) use ($query) {

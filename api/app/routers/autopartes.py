@@ -1,5 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db, get_current_user, require_roles
@@ -30,7 +31,7 @@ def listar_categorias(db: Session = Depends(get_db)):
 @router.get('', response_model=List[AutoparteOut])
 def listar_autopartes(
     categoria_id: Optional[int]  = Query(None),
-    activo:       Optional[bool] = Query(True),
+    activo:       Optional[bool] = Query(None),
     buscar:       Optional[str]  = Query(None),
     db:           Session        = Depends(get_db),
 ):
@@ -108,5 +109,8 @@ def eliminar_autoparte(
     autoparte = db.query(Autoparte).filter(Autoparte.id == id).first()
     if not autoparte:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Autoparte no encontrada')
+    db.execute(text('DELETE FROM detalles_pedido WHERE autoparte_id = :id'), {'id': id})
+    db.execute(text('DELETE FROM inventarios WHERE autoparte_id = :id'), {'id': id})
+    db.flush()
     db.delete(autoparte)
     db.commit()

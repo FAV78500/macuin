@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .kpi-card {
@@ -10,20 +9,17 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
         height: 100%;
     }
-
     .kpi-title {
         font-size: 0.8rem;
         color: #777;
         font-weight: 600;
     }
-
     .kpi-value {
         font-size: 1.8rem;
         font-weight: 700;
         margin-top: 5px;
         color: var(--macuin-dark-blue);
     }
-
     .kpi-icon-box {
         width: 45px;
         height: 45px;
@@ -33,36 +29,22 @@
         align-items: center;
         font-size: 1.2rem;
     }
-
-    .kpi-green {
-        background-color: #e6f4ea;
-        color: #1e8e3e;
-    }
-
-    .kpi-red {
-        background-color: #fce8e6;
-        color: #d93025;
-    }
-
-    .kpi-orange {
-        background-color: #fef0db;
-        color: #e37400;
-    }
+    .kpi-green  { background-color: #e6f4ea; color: #1e8e3e; }
+    .kpi-red    { background-color: #fce8e6; color: #d93025; }
+    .kpi-orange { background-color: #fef0db; color: #e37400; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Restricting Dashboard based on actual Mockup 8 layout -->
-
-<!-- Top KPI Row -->
+<!-- KPIs -->
 <div class="row mb-4">
     <div class="col-md-4 mb-3 mb-md-0">
         <div class="card kpi-card">
             <div class="card-body d-flex justify-content-between align-items-center p-4">
                 <div>
                     <div class="kpi-title">Ventas Totales (Mes)</div>
-                    <div class="kpi-value">$1,800,000</div>
+                    <div class="kpi-value">${{ "{:,.2f}".format(ventas_mes) }}</div>
                 </div>
                 <div class="kpi-icon-box kpi-green">
                     <i class="bi bi-currency-dollar"></i>
@@ -75,8 +57,10 @@
             <div class="card-body d-flex justify-content-between align-items-center p-4">
                 <div>
                     <div class="kpi-title">Pedidos Pendientes</div>
-                    <div class="kpi-value">48</div>
+                    <div class="kpi-value">{{ pedidos_pendientes }}</div>
+                    {% if pedidos_pendientes > 0 %}
                     <span class="badge bg-danger mt-1" style="font-size: 0.65rem;">Urgente</span>
+                    {% endif %}
                 </div>
                 <div class="kpi-icon-box kpi-red">
                     <i class="bi bi-box-seam"></i>
@@ -89,10 +73,12 @@
             <div class="card-body d-flex justify-content-between align-items-center p-4">
                 <div>
                     <div class="kpi-title">Alertas de Stock</div>
-                    <div class="kpi-value text-warning">12 Items</div>
-                    <span class="badge bg-warning mt-1"
-                        style="font-size: 0.65rem; color: #7a4100 !important; background-color: #ffe6aa !important;">Reponer
+                    <div class="kpi-value text-warning">{{ alertas_stock }} Items</div>
+                    {% if alertas_stock > 0 %}
+                    <span class="badge mt-1"
+                        style="font-size: 0.65rem; color: #7a4100; background-color: #ffe6aa;">Reponer
                         Inmediatamente</span>
+                    {% endif %}
                 </div>
                 <div class="kpi-icon-box kpi-orange">
                     <i class="bi bi-exclamation-triangle"></i>
@@ -102,7 +88,7 @@
     </div>
 </div>
 
-<!-- Charts Row -->
+<!-- Charts -->
 <div class="row mb-4">
     <div class="col-md-7 mb-3 mb-md-0">
         <div class="card h-100" style="border: 1px solid var(--macuin-border); box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
@@ -110,9 +96,18 @@
                 <h6 style="color: var(--macuin-dark-blue); font-weight: 700;">Top 5 Productos Vendidos</h6>
             </div>
             <div class="card-body">
+                {% if bar_labels == '[]' %}
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted" style="min-height:200px;">
+                    <div class="text-center">
+                        <i class="bi bi-bar-chart" style="font-size:2rem;"></i>
+                        <p class="mt-2 mb-0" style="font-size:0.9rem;">Sin ventas registradas</p>
+                    </div>
+                </div>
+                {% else %}
                 <div style="position: relative; height: 250px; width: 100%;">
                     <canvas id="barChart"></canvas>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -121,16 +116,21 @@
             <div class="card-header bg-white text-center" style="border-bottom: none; padding: 20px 20px 0 20px;">
                 <h6 style="color: var(--macuin-dark-blue); font-weight: 700;">Estatus de Inventario</h6>
             </div>
-            <div class="card-body d-flex justify-content-center align-items-center position-relative">
-                <div style="position: relative; height: 200px; width: 100%;">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                <div style="position: relative; height: 180px; width: 100%;">
                     <canvas id="doughnutChart"></canvas>
+                </div>
+                <div class="d-flex gap-3 mt-3 flex-wrap justify-content-center">
+                    <span style="font-size:0.8rem;"><span class="badge" style="background:#10B981;">&nbsp;</span> Óptimo</span>
+                    <span style="font-size:0.8rem;"><span class="badge" style="background:#F59E0B;">&nbsp;</span> Bajo Stock</span>
+                    <span style="font-size:0.8rem;"><span class="badge" style="background:#EF4444;">&nbsp;</span> Agotado</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Bottom Table -->
+<!-- Movimientos Recientes -->
 <div class="card" style="border: 1px solid var(--macuin-border); box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
     <div class="card-header bg-white" style="padding: 20px;">
         <h6 style="color: var(--macuin-dark-blue); font-weight: 700; margin: 0;">Movimientos Recientes</h6>
@@ -140,21 +140,52 @@
             <table class="table table-hover align-middle mb-0" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="padding-left: 20px;">ID Pedido</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Estatus</th>
+                        <th style="background-color:#1e3a8a; color:white; padding-left:20px; font-weight:600; border:none; font-size:0.85rem;">ID</th>
+                        <th style="background-color:#1e3a8a; color:white; font-weight:600; border:none; font-size:0.85rem;">Cliente</th>
+                        <th style="background-color:#1e3a8a; color:white; font-weight:600; border:none; font-size:0.85rem;">Primer Producto</th>
+                        <th style="background-color:#1e3a8a; color:white; font-weight:600; border:none; font-size:0.85rem;">Total</th>
+                        <th style="background-color:#1e3a8a; color:white; font-weight:600; border:none; font-size:0.85rem;">Fecha</th>
+                        <th style="background-color:#1e3a8a; color:white; font-weight:600; border:none; font-size:0.85rem;">Estatus</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td style="padding-left: 20px;">#ORD-9921</td>
-                        <td>Batería LTH - 12V Heavy Duty</td>
-                        <td>2</td>
-                        <td><span class="badge"
-                                style="background-color: #e6f4ea; color: #1e8e3e border: 1px solid #1e8e3e; border-radius: 4px;">Surtido</span>
+                    {% if recientes %}
+                    {% for p in recientes %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding-left:20px; font-weight:600; color:#555;">#{{ p.get('id') }}</td>
+                        <td>{{ (p.get('usuario') or {}).get('nombre', '—') }}</td>
+                        <td>
+                            {% set primer = p.get('detalles', []) %}
+                            {% if primer %}
+                                {{ (primer[0].get('autoparte') or {}).get('nombre', '—') }}
+                                {% if primer|length > 1 %}
+                                    <span class="text-muted" style="font-size:0.8rem;">+{{ primer|length - 1 }} más</span>
+                                {% endif %}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td style="font-weight:600;">${{ "{:,.2f}".format(p.get('total', 0)) }}</td>
+                        <td style="font-size:0.85rem; color:#777;">{{ p.get('fecha_pedido', '')[:10] }}</td>
+                        <td>
+                            {% set estado = p.get('estado', '') %}
+                            {% if estado == 'RECIBIDO' %}
+                                <span class="badge" style="background:#dbeafe; color:#1d4ed8;">Recibido</span>
+                            {% elif estado == 'SURTIDO' %}
+                                <span class="badge" style="background:#e6f4ea; color:#1e8e3e;">Surtido</span>
+                            {% elif estado == 'ENVIADO' %}
+                                <span class="badge" style="background:#ede9fe; color:#6d28d9;">Enviado</span>
+                            {% elif estado == 'CANCELADO' %}
+                                <span class="badge" style="background:#fce8e6; color:#d93025;">Cancelado</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ estado }}</span>
+                            {% endif %}
                         </td>
                     </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No hay pedidos registrados.</td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -165,17 +196,20 @@
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Bar Chart
-        const barCtx = document.getElementById('barChart').getContext('2d');
-        new Chart(barCtx, {
+document.addEventListener("DOMContentLoaded", function () {
+    const barLabels = {{ bar_labels|safe }};
+    const barData   = {{ bar_data|safe }};
+    const doughnutData = {{ doughnut_data|safe }};
+
+    if (barLabels.length > 0) {
+        new Chart(document.getElementById('barChart').getContext('2d'), {
             type: 'bar',
             data: {
-                labels: ['Batería LTH', 'Filtro Aceite', 'Disco Freno', 'Bujía NGK', 'Pastillas'],
+                labels: barLabels,
                 datasets: [{
                     label: 'Unidades Vendidas',
-                    data: [150, 135, 100, 95, 80],
-                    backgroundColor: '#1E3A8A' // Dark Blue matching mockup
+                    data: barData,
+                    backgroundColor: '#1E3A8A'
                 }]
             },
             options: {
@@ -188,28 +222,25 @@
                 }
             }
         });
+    }
 
-        // Doughnut Chart
-        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
-        new Chart(doughnutCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['En Stock', 'Bajo Stock', 'Agotado'],
-                datasets: [{
-                    data: [450, 85, 12],
-                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], // Green, Orange, Red
-                    borderWidth: 0,
-                    cutout: '75%'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false } // Custom labels are attached in mockup, hiding default
-                }
-            }
-        });
+    new Chart(document.getElementById('doughnutChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Óptimo', 'Bajo Stock', 'Agotado'],
+            datasets: [{
+                data: doughnutData,
+                backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                borderWidth: 0,
+                cutout: '72%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
     });
+});
 </script>
 {% endblock %}
